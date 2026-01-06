@@ -1,1 +1,39 @@
-export class Patient {}
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { User } from "../../users/entities/user.entity";
+import { Appointment } from "../../appointments/entities/appointment.entity";
+
+@Entity({ name: "PATIENTS" })
+export class Patient {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @Column({ name: "first_name", type: "varchar" })
+  firstName: string;
+  @Column({ name: "last_name", type: "varchar" })
+  lastName: string;
+  @Column({ name: "date_of_birth", type: "date", nullable: true })
+  dateOfBirth: Date | null;
+  @Column({ nullable: true, type: "varchar" })
+  phone: string | null;
+  @Column({
+    name: "fiscal_code",
+    type: "varchar",
+    unique: true,
+    nullable: true,
+  })
+  fiscalCode: string | null;
+  @CreateDateColumn({ name: "created_at", type: "varchar" })
+  createdAt: Date;
+  @OneToOne(()=>User, (user)=>user.patient, {eager:true})
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+  @OneToMany(()=>Appointment, (appointment)=>appointment.patient)
+  appointments: Appointment[];
+}
