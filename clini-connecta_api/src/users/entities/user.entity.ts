@@ -13,9 +13,9 @@ export class User {
     password: string;
     @Column({type:'enum', enum:RoleStatus, default:RoleStatus.PAZIENTE})
     role: RoleStatus
-    @CreateDateColumn({ name: 'created_at', type: "varchar" })
+    @CreateDateColumn({ name: 'created_at', type:'timestamp' })
     createdAt: Date;
-    @UpdateDateColumn({ name: 'updated_at', type: "varchar" })
+    @UpdateDateColumn({ name: 'updated_at', type:'timestamp' })
     updatedAt: Date;
     @OneToOne(()=>Patient, (patient)=> patient.user)
     patient?: Patient

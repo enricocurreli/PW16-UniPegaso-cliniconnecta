@@ -25,7 +25,7 @@ export class MedicalReport {
   treatment: string | null;
   @Column({ type: "varchar", name: "file_path", nullable: true })
   filePath: string | null;
-  @CreateDateColumn({ name: "created_at" })
+  @CreateDateColumn({ name: "created_at", type:'timestamp' })
   createdAt: Date;
   @ManyToOne(() => Appointment, (app) => app.medicalReports, { eager: true })
   @JoinColumn({ name: "appointment_id" })

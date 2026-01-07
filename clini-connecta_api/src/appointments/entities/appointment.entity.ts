@@ -33,7 +33,7 @@ export class Appointment {
   @Column({ type: "text", nullable: true })
   reason: string | null;
 
-  @CreateDateColumn({ name: "created_at" })
+  @CreateDateColumn({ name: "created_at", type:'timestamp' })
   createdAt: Date;
 
   @ManyToOne(() => Doctor, (doctor) => doctor.appointments, { eager: true })

@@ -29,11 +29,14 @@ export class Patient {
     nullable: true,
   })
   fiscalCode: string | null;
-  @CreateDateColumn({ name: "created_at", type: "varchar" })
+  @CreateDateColumn({ name: "created_at", type:'timestamp' })
   createdAt: Date;
   @OneToOne(()=>User, (user)=>user.patient, {eager:true})
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+
+  
   @OneToMany(()=>Appointment, (appointment)=>appointment.patient)
   appointments: Appointment[];
 }

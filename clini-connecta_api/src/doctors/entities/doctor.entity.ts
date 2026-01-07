@@ -30,7 +30,7 @@ export class Doctor {
   @JoinColumn({ name: 'specialization_id' })
   specialization: Specialization;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type:'timestamp' })
   createdAt: Date;
 
   @OneToMany(() => DoctorClinic, (dc) => dc.doctor)
