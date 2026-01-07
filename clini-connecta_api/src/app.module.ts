@@ -11,7 +11,7 @@ import { ClinicsModule } from "./clinics/clinics.module";
 import { MedicalReportsModule } from "./medical-reports/medical-reports.module";
 import { DoctorClinicsModule } from "./doctor-clinics/doctor-clinics.module";
 import { PrescriptionsModule } from "./prescriptions/prescriptions.module";
-import { AuthModule } from "./users/auth/auth.module";
+import { AuthModule } from "./auth/auth.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { User } from "./users/entities/user.entity";
 import { Patient } from "./patients/entities/patient.entity";
@@ -22,18 +22,23 @@ import { DoctorClinic } from "./doctor-clinics/entities/doctor-clinic.entity";
 import { Appointment } from "./appointments/entities/appointment.entity";
 import { MedicalReport } from "./medical-reports/entities/medical-report.entity";
 import { Prescription } from "./prescriptions/entities/prescription.entity";
+import { APP_GUARD } from "@nestjs/core";
+import { AuthGuard } from "./auth/guard/authGuard.guard";
+
+
 
 @Module({
   imports: [
-    AppointmentsModule,
-    PatientsModule,
-    UsersModule,
-    DoctorsModule,
-    SpecializationsModule,
-    ClinicsModule,
-    MedicalReportsModule,
-    DoctorClinicsModule,
-    PrescriptionsModule,
+    // AppointmentsModule,
+    // PatientsModule,
+     UsersModule,
+     AuthModule,
+    // DoctorsModule,
+    // SpecializationsModule,
+    // ClinicsModule,
+    // MedicalReportsModule,
+    // DoctorClinicsModule,
+    // PrescriptionsModule,
 
     ConfigModule.forRoot({
       isGlobal: true,
@@ -65,7 +70,7 @@ import { Prescription } from "./prescriptions/entities/prescription.entity";
       }),
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

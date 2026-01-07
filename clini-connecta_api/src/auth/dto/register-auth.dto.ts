@@ -1,8 +1,14 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsEnum } from 'class-validator';
-import { RoleStatus } from '../../enums/db-enum.enum';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  MinLength,
+  IsEmail,
+} from "class-validator";
+import { RoleStatus } from "../../enums/db-enum.enum";
 
 
-export class CreateUserDto {
+export class RegisterDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
