@@ -24,15 +24,16 @@ export class UsersService {
     if (exsistingUser) {
       throw new ConflictException("Email already registered");
     }
-    // user base creato
+   
     const user = this.userRepository.create({
       email,
       password,
       role,
     });
-
-    const savedUser = await this.userRepository.save(user);
     
+    const savedUser = await this.userRepository.save(user);
+
+
     if (role === RoleStatus.PAZIENTE) {
       const patient = this.patientRepository.create({
         firstName,
@@ -48,17 +49,32 @@ export class UsersService {
       });
       await this.doctorRepository.save(doctor);
     }
-    return user;
+    const { password: _, ...userWithoutPassword } = savedUser;
+    return userWithoutPassword;
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { email } });
+async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .addSelect('user.password')
+      .getOne();
   }
-
   async findById(id: number): Promise<User | null> {
     return await this.userRepository.findOne({ where: { id } });
   }
 
+    async findByIdWithPassword(id: number): Promise<User | null> {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .addSelect('user.password')
+      .getOne();
+  }
+
+  async updatePassword(userId: number, hashedPass: string): Promise<void> {
+    await this.userRepository.update(userId, {password: hashedPass});
+  }
   // update(id: number, updateUserDto: UpdateUserDto) {
   //   return `This action updates a #${id} user`;
   // }
