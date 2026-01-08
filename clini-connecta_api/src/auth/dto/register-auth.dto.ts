@@ -6,8 +6,9 @@ import {
   IsEmail,
 } from "class-validator";
 import { RoleStatus } from "../../enums/db-enum.enum";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiSchema } from "@nestjs/swagger";
 
+@ApiSchema({ name: 'Registrazione utente' })
 export class RegisterDto {
   @ApiProperty({
     example: "mario.rossi@example.com",
@@ -28,9 +29,9 @@ export class RegisterDto {
   password: string;
   @ApiProperty({
     example: "PAZIENTE",
-    description: "Ruolo dell'utente",
+    description: "Le 3 tipologie di utente",
     enum: RoleStatus,
-    enumName: "RoleStatus",
+    enumName: "Ruolo dell'utente",
   })
   @IsEnum(RoleStatus)
   role: RoleStatus;

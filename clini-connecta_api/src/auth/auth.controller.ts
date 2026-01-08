@@ -10,7 +10,7 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { ChangePAsswordDto } from "./dto/change-password.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -59,7 +59,7 @@ export class AuthController {
         user: {
           id: 1,
           email: "mario.rossi@example.com",
-          role: "patient",
+          role: "PAZIENTE",
         },
       },
     },
@@ -130,7 +130,7 @@ export class AuthController {
   })
   changePassword(
     @CurrentUser() user: any,
-    @Body() changePasswordDto: ChangePAsswordDto,
+    @Body() changePasswordDto: ChangePasswordDto,
   ) {
     return this.authService.changePassword(user.sub, changePasswordDto);
   }

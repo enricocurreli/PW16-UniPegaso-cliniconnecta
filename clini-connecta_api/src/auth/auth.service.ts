@@ -8,7 +8,7 @@ import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { LoginDto } from "./dto/login-auth.dto";
-import { ChangePAsswordDto } from "./dto/change-password.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 @Injectable()
 export class AuthService {
   constructor(
@@ -83,7 +83,7 @@ export class AuthService {
     return { message: "Logout successful" };
   }
 
-  async changePassword(userId: number, changePasswordDto: ChangePAsswordDto) {
+  async changePassword(userId: number, changePasswordDto: ChangePasswordDto) {
     const { currentPassword, newPassword } = changePasswordDto;
 
     const user = await this.usersService.findByIdWithPassword(userId);

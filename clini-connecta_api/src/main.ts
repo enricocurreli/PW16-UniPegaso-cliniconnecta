@@ -64,12 +64,10 @@ async function bootstrap() {
     }
     .swagger-ui .info h1 {
       font-size: 50px !important;
-      color: #ffffff !important;
       margin-top: 15px !important;
     }
     .swagger-ui .info h2 {
       font-size: 20px !important;
-      color: #ffffff !important;
       margin-top: 12px !important;
     }
   `,
