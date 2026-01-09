@@ -9,6 +9,7 @@ import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { LoginDto } from "./dto/login-auth.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { RoleStatus } from "../enums/db-enum.enum";
 @Injectable()
 export class AuthService {
   constructor(
@@ -139,7 +140,7 @@ export class AuthService {
   private async generateToken(
     userId: number,
     email: string,
-    role: string
+    role: RoleStatus
   ): Promise<string> {
     const payload = { sub: userId, email, role };
     return await this.jwtService.signAsync(payload);

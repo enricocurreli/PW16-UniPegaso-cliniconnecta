@@ -17,3 +17,8 @@ export enum ReportType {
   PRIMA_VISITA = 'PRIMA VISITA',
   VISITA_DI_CONTROLLO = 'VISITA DI CONTROLLO',
 }
+
+export enum Gender {
+  MASCHIO = 'M',
+  FEMMINA = 'F'
+}

@@ -72,10 +72,10 @@ export class AuthController {
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
-  @Get("profile")
+
   @ApiBearerAuth("JWT-auth")
   @ApiOperation({
-    summary: "Ottieni profilo utente",
+    summary: "Ottieni l'utente loggato",
     description: "Ritorna i dati del token JWT dell'utente autenticato",
   })
   @ApiResponse({
@@ -93,7 +93,7 @@ export class AuthController {
     status: 401,
     description: "Non autenticato",
   })
-  @Get("profile")
+  @Get("whoamI")
   getProfile(@CurrentUser() user: any) {
     return user;
   }

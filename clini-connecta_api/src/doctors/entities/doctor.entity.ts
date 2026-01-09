@@ -28,7 +28,7 @@ export class Doctor {
     { eager: true },
   )
   @JoinColumn({ name: 'specialization_id' })
-  specialization: Specialization;
+  specialization: Specialization[];
 
   @CreateDateColumn({ name: 'created_at', type:'timestamp' })
   createdAt: Date;

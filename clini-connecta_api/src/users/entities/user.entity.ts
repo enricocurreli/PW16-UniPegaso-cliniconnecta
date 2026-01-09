@@ -2,6 +2,7 @@ import {Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, Upda
 import { RoleStatus } from '../../enums/db-enum.enum';
 import { Patient } from '../../patients/entities/patient.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'USERS' })
 export class User {
@@ -9,7 +10,8 @@ export class User {
     id: number;
     @Column({unique: true, type: "varchar"})
     email:string;
-    @Column({type: "varchar", select:false})
+    @Column({type: "varchar"})
+    @Exclude() 
     password: string;
     @Column({type:'enum', enum:RoleStatus, default:RoleStatus.PAZIENTE})
     role: RoleStatus

@@ -30,9 +30,9 @@ import { AuthGuard } from "./auth/guard/authGuard.guard";
 @Module({
   imports: [
     // AppointmentsModule,
-    // PatientsModule,
-     UsersModule,
-     AuthModule,
+    PatientsModule,
+    UsersModule,
+    AuthModule,
     // DoctorsModule,
     // SpecializationsModule,
     // ClinicsModule,

@@ -1,7 +1,7 @@
 import { ApiProperty, ApiSchema } from "@nestjs/swagger";
 import { IsString, MinLength } from "class-validator";
 
-@ApiSchema({ name: 'Cambio Password' })
+@ApiSchema({ name: 'Cambio password' })
 export class ChangePasswordDto {
   @ApiProperty({
     example: "OldPassword123!",
