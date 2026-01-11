@@ -17,7 +17,7 @@ import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Serialize } from "../interceptor/serializer.interceptor";
 import { PatientDTO } from "./dto/patient.dto";
-
+@ApiTags("Pazienti")
 @ApiBearerAuth()
 @Controller("patients")
 @Serialize(PatientDTO)

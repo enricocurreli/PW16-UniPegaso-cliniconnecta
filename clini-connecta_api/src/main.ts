@@ -27,11 +27,13 @@ async function bootstrap() {
     )
     .setVersion("1.0")
     .addTag("Auth", "Autenticazione e gestione utenti")
-    .addTag("Patients", "Gestione profili pazienti")
-    .addTag("Doctors", "Gestione profili medici")
-    .addTag("Appointments", "Prenotazione e gestione appuntamenti")
-    .addTag("Medical-reports", "Referti medici")
-    .addTag("Prescriptions", "Prescrizioni mediche")
+    .addTag("Pazienti", "Gestione profili pazienti")
+    .addTag("Dottori", "Gestione profili medici")
+    .addTag("Appuntamenti", "Prenotazione e gestione appuntamenti")
+    .addTag("Report medici", "Referti medici")
+    .addTag("Prescrizioni", "Prescrizioni mediche")
+    .addTag("Specializzazioni", "Specializzazione dei medici")
+    .addTag("Calendario medici", "Disponibilità medici")
     .addBearerAuth(
       {
         type: "http",
