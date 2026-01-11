@@ -139,7 +139,5 @@ export class PatientsService {
     }
     throw new Error("Impossibile generare il codice fiscale");
   }
-  private validateCodiceFiscale(codiceFiscale: string): boolean {
-    return CodiceFiscale.check(codiceFiscale);
-  }
+  
 }

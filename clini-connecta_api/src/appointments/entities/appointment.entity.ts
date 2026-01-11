@@ -20,13 +20,13 @@ export class Appointment {
   @Column({ name: "scheduled_at", type: "timestamp" })
   scheduledAt: Date;
 
-  @Column({ name: "duration_minutes", type: "int" })
+  @Column({ name: "duration_minutes", type: "int" , default: 30})
   durationMinutes: number;
 
   @Column({
     type: "enum",
     enum: AppointmentStatus,
-    default: AppointmentStatus.PRENOTATO,
+    default: AppointmentStatus.CONFERMATO,
   })
   status: AppointmentStatus;
 

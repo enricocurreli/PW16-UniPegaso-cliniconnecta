@@ -73,11 +73,5 @@ export class UsersService {
   async updatePassword(userId: number, hashedPass: string): Promise<void> {
     await this.userRepository.update(userId, { password: hashedPass });
   }
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
+ 
 }

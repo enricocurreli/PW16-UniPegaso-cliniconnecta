@@ -24,17 +24,20 @@ import { MedicalReport } from "./medical-reports/entities/medical-report.entity"
 import { Prescription } from "./prescriptions/entities/prescription.entity";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthGuard } from "./auth/guard/authGuard.guard";
+import { DoctorAvailabilityModule } from './doctor-availability/doctor-availability.module';
+import { DoctorAvailability } from "./doctor-availability/entities/doctor-availability.entity";
 
 
 
 @Module({
   imports: [
     // AppointmentsModule,
-    PatientsModule,
     UsersModule,
     AuthModule,
-    // DoctorsModule,
-    // SpecializationsModule,
+    PatientsModule,
+    DoctorAvailabilityModule,
+    SpecializationsModule,
+    DoctorsModule,
     // ClinicsModule,
     // MedicalReportsModule,
     // DoctorClinicsModule,
@@ -64,11 +67,13 @@ import { AuthGuard } from "./auth/guard/authGuard.guard";
           Appointment,
           MedicalReport,
           Prescription,
+          DoctorAvailability
         ],
         synchronize: configService.get<string>("NODE_ENV") === "development",
         logging: configService.get<string>("NODE_ENV") === "development",
       }),
     }),
+    DoctorAvailabilityModule,
   ],
   controllers: [],
   providers: [],

@@ -7,7 +7,7 @@ export enum RoleStatus {
 
 
 export enum AppointmentStatus {
-  PRENOTATO = 'PRENOTATO',
+  CONFERMATO = 'CONFERMATO',
   CANCELLATO = 'CANCELLATO',
   COMPLETATO = 'COMPLETATO',
 }
@@ -21,4 +21,13 @@ export enum ReportType {
 export enum Gender {
   MASCHIO = 'M',
   FEMMINA = 'F'
+}
+
+export enum DayOfWeek {
+  Lunedì = 'Lunedì',
+  Martedì = 'Martedì',
+  Mercoledì = 'Mercoledì',
+  Giovedì = 'Giovedì',
+  Venerdì = 'Venerdì',
+  Sabato = 'Sabato',
 }

@@ -14,11 +14,11 @@ import { UpdatePatientDto } from "./dto/update-patient.dto";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { RoleStatus } from "../enums/db-enum.enum";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { ApiOperation, ApiParam, ApiResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Serialize } from "../interceptor/serializer.interceptor";
 import { PatientDTO } from "./dto/patient.dto";
 
-
+@ApiBearerAuth()
 @Controller("patients")
 @Serialize(PatientDTO)
 export class PatientsController {
@@ -58,27 +58,6 @@ export class PatientsController {
     return this.patientsService.getProfilebyUserId(user.sub);
   }
   //!---------------------------------
-  @Roles(RoleStatus.PAZIENTE)
-  @Patch("account/update")
-  @ApiOperation({
-    summary: "Aggiorna il tuo profilo paziente",
-    description: "Permette al paziente di aggiornare i propri dati",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Profilo aggiornato con successo",
-  })
-  @ApiResponse({
-    status: 404,
-    description: "Profilo paziente non trovato",
-  })
-  updateMyProfile(
-    @CurrentUser() user: any,
-    @Body() updatePatientDto: UpdatePatientDto
-  ) {
-    return this.patientsService.updateProfile(user.sub, updatePatientDto);
-  }
-  //! ROUTES PER DOTTORI E ADMIN
   @Roles(RoleStatus.DOTTORE, RoleStatus.ADMIN)
   @Get(":id")
   @ApiOperation({
@@ -109,6 +88,30 @@ export class PatientsController {
   }
   //!---------------------------------
 
+  @Roles(RoleStatus.PAZIENTE)
+  @Patch("account/update")
+  @ApiOperation({
+    summary: "Aggiorna il tuo profilo paziente",
+    description: "Permette al paziente di aggiornare i propri dati",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Profilo aggiornato con successo",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Profilo paziente non trovato",
+  })
+  updateMyProfile(
+    @CurrentUser() user: any,
+    @Body() updatePatientDto: UpdatePatientDto
+  ) {
+    return this.patientsService.updateProfile(user.sub, updatePatientDto);
+  }
+  //!---------------------------------
+
+
+  @Get()
   @ApiOperation({
     summary: "Lista di tutti i pazienti",
     description: "Ottiene la lista di tutti i pazienti (solo dottori e admin)",
@@ -126,7 +129,6 @@ export class PatientsController {
     description: "Accesso negato (solo dottori e admin)",
   })
   @Roles(RoleStatus.DOTTORE, RoleStatus.ADMIN)
-  @Get()
   findAll() {
     return this.patientsService.findAll();
   }
@@ -134,7 +136,7 @@ export class PatientsController {
   //! SOLO ADMIN
   @Roles(RoleStatus.ADMIN)
   @Delete(":id")
-  @HttpCode(HttpStatus.NO_CONTENT)
+  // @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: "Elimina paziente",
     description: "Elimina un paziente (solo admin)",

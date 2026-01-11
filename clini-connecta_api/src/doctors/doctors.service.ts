@@ -1,26 +1,143 @@
-import { Injectable } from '@nestjs/common';
-import { CreateDoctorDto } from './dto/create-doctor.dto';
-import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { UpdateDoctorDto } from "./dto/update-doctor.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Doctor } from "./entities/doctor.entity";
+import { Repository } from "typeorm";
+import { Specialization } from "../specializations/entities/specialization.entity";
 
 @Injectable()
 export class DoctorsService {
-  create(createDoctorDto: CreateDoctorDto) {
-    return 'This action adds a new doctor';
+  constructor(
+    @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
+    @InjectRepository(Specialization)
+    private specializationRepository: Repository<Specialization>
+  ) {}
+
+  async findbyId(user_id: number) {
+    const doctor = await this.doctorRepository.findOne({
+      where: { user: { id: user_id } },
+      relations: ["user", "specialization"],
+    });
+    if (!doctor) {
+      throw new NotFoundException("Doctor profile not found");
+    }
+    return doctor;
+  }
+  // Pazienti
+
+  async findbyQuery(
+    firstName?: string,
+    lastName?: string,
+    email?: string,
+    specialization?: string
+  ) {
+    // Cosi da visualizzare anche la parte user, altrimenti non vedrei l'email
+    const queryBuilder = this.doctorRepository
+      .createQueryBuilder("doctor")
+      .leftJoinAndSelect("doctor.user", "user")
+      .leftJoinAndSelect("doctor.specialization", "specialization");
+
+    if (firstName) {
+      queryBuilder.andWhere("LOWER(doctor.firstName) LIKE LOWER(:firstName)", {
+        firstName: `%${firstName}%`,
+      });
+    }
+
+    if (lastName) {
+      queryBuilder.andWhere("LOWER(doctor.lastName) LIKE LOWER(:lastName)", {
+        lastName: `%${lastName}%`,
+      });
+    }
+
+    if (email) {
+      queryBuilder.andWhere("LOWER(user.email) LIKE LOWER(:email)", {
+        email: `%${email}%`,
+      });
+    }
+
+    if (specialization) {
+      queryBuilder.andWhere(
+        "LOWER(specialization.name) LIKE LOWER(:specialization)",
+        {
+          specialization: `%${specialization}%`,
+        }
+      );
+    }
+
+    const doctors = await queryBuilder.getMany();
+
+    if (!doctors || doctors.length === 0) {
+      throw new NotFoundException(
+        "Nessun medico trovato con i criteri specificati"
+      );
+    }
+
+    return doctors;
   }
 
-  findAll() {
-    return `This action returns all doctors`;
+  // public
+  async findAll() {
+    return await this.doctorRepository.find({
+      relations: ["user", "specialization"],
+      order: {
+        firstName: "DESC",
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} doctor`;
+  // Aggiorna profilo medico
+  async updateProfile(user_id: number, updateDoctor: UpdateDoctorDto) {
+    const doctor = await this.doctorRepository.findOne({
+      where: { user: { id: user_id } },
+      relations: ["user", "specialization"],
+    });
+    if (!doctor) {
+      throw new NotFoundException("Doctor profile not found");
+    }
+
+    if (updateDoctor.specialization) {
+      const specialization = await this.specializationRepository.findOne({
+        where: { name: updateDoctor.specialization },
+      });
+
+      if (!specialization) {
+        throw new NotFoundException("Specialization not found");
+      }
+
+      doctor.specialization = specialization;
+    }
+
+    const { specialization, ...otherUpdates } = updateDoctor;
+    const updates = Object.fromEntries(
+      Object.entries(otherUpdates).filter(
+        ([_, v]) => v !== undefined && v !== null
+      )
+    );
+
+    Object.assign(doctor, updates);
+
+    await this.doctorRepository.save(doctor);
+
+    const finalDoctor = await this.doctorRepository.findOne({
+      where: { id: doctor.id },
+      relations: ["specialization", "user"],
+    });
+
+    return finalDoctor;
   }
 
-  update(id: number, updateDoctorDto: UpdateDoctorDto) {
-    return `This action updates a #${id} doctor`;
-  }
+  // Rimozione medici solo admin
+  async remove(id: number) {
+    const result = await this.doctorRepository.delete(id);
 
-  remove(id: number) {
-    return `This action removes a #${id} doctor`;
+    if (result.affected === 0) {
+      throw new NotFoundException(`Doctor with ID ${id} not found`);
+    }
+
+    return { message: `Doctor with ID ${id} has been deleted` };
   }
 }
