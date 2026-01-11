@@ -36,15 +36,14 @@ export class Doctor {
 
   @Column({ nullable: true })
   licenseNumber: string;
-
+  @CreateDateColumn({ name: "created_at", type: "timestamp" })
+  createdAt: Date;
+  
   @ManyToOne(() => Specialization, (specialization) => specialization.doctors, {
     eager: false,
   })
-  @JoinColumn({ name: "specialization_name" })
+  @JoinColumn({ name: "specialization_id" })
   specialization: Specialization;
-
-  @CreateDateColumn({ name: "created_at", type: "timestamp" })
-  createdAt: Date;
 
   @OneToMany(() => DoctorClinic, (dc) => dc.doctor)
   doctorClinics: DoctorClinic[];

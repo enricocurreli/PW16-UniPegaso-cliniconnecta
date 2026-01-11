@@ -35,12 +35,13 @@ export class DoctorsService {
     email?: string,
     specialization?: string
   ) {
-    // Cosi da visualizzare anche la parte user, altrimenti non vedrei l'email
+    // Cosi da visualizzare anche la parte user e specialization, altrimenti non vedrei l'email
     const queryBuilder = this.doctorRepository
       .createQueryBuilder("doctor")
       .leftJoinAndSelect("doctor.user", "user")
       .leftJoinAndSelect("doctor.specialization", "specialization");
 
+      // `%${field}%` case-insensitive che permette di trovare nomi anche con ricerche parziali
     if (firstName) {
       queryBuilder.andWhere("LOWER(doctor.firstName) LIKE LOWER(:firstName)", {
         firstName: `%${firstName}%`,
@@ -91,6 +92,8 @@ export class DoctorsService {
 
   // Aggiorna profilo medico
   async updateProfile(user_id: number, updateDoctor: UpdateDoctorDto) {
+
+    //TODO: recupero il medico e verifico che esista
     const doctor = await this.doctorRepository.findOne({
       where: { user: { id: user_id } },
       relations: ["user", "specialization"],
@@ -98,7 +101,7 @@ export class DoctorsService {
     if (!doctor) {
       throw new NotFoundException("Doctor profile not found");
     }
-
+    //TODO: Verifico che la specializzazione inserita sia tra quelle disponibili. PS: Nel frontend inseriro' menu' a tendina senza dare la possibilità dia ggiungere un valore manuale.
     if (updateDoctor.specialization) {
       const specialization = await this.specializationRepository.findOne({
         where: { name: updateDoctor.specialization },
@@ -112,6 +115,7 @@ export class DoctorsService {
     }
 
     const { specialization, ...otherUpdates } = updateDoctor;
+    //TODO: pulizia dei valori undifined o null per non rischiare sovrascrizione, cosi facendo prendo solo i valori effettivamente modificati
     const updates = Object.fromEntries(
       Object.entries(otherUpdates).filter(
         ([_, v]) => v !== undefined && v !== null

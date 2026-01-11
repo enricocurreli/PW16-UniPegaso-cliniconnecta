@@ -17,10 +17,13 @@ import { Patient } from "../../patients/entities/patient.entity";
 export class Appointment {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({ name: "scheduled_at", type: "timestamp" })
-  scheduledAt: Date;
+  @Column({ type: "date", name: "appointment_date" })
+  appointmentDate: Date;
 
-  @Column({ name: "duration_minutes", type: "int" , default: 30})
+  @Column({ type: "time", name: "appointment_time" })
+  appointmentTime: string;
+
+  @Column({ name: "duration_minutes", type: "int", default: 30 })
   durationMinutes: number;
 
   @Column({
@@ -32,8 +35,11 @@ export class Appointment {
 
   @Column({ type: "text", nullable: true })
   reason: string | null;
+  
+  @Column({ type: "text", nullable: true })
+  notes: string | null;
 
-  @CreateDateColumn({ name: "created_at", type:'timestamp' })
+  @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt: Date;
 
   @ManyToOne(() => Doctor, (doctor) => doctor.appointments, { eager: true })
@@ -47,6 +53,7 @@ export class Appointment {
   @ManyToOne(() => Clinic, (clinic) => clinic.appointments, { eager: true })
   @JoinColumn({ name: "clinic_id" })
   clinic: Clinic;
+  
   @OneToMany(() => MedicalReport, (report) => report.appointment)
   medicalReports: MedicalReport[];
 }

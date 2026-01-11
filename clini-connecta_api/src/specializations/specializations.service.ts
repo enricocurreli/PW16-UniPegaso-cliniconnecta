@@ -14,7 +14,7 @@ export class SpecializationsService {
     const existing = await this.specializationRepository.findOne({
       where: { name: createSpecializationDto.name }
     });
-
+    
     if (existing) {
       throw new ConflictException('Specialization already exists');
     }

@@ -1,14 +1,22 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Doctor } from "../../doctors/entities/doctor.entity";
 
-@Entity({ name: 'SPECIALIZATIONS' })
+@Entity({ name: "SPECIALIZATIONS" })
 export class Specialization {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: "varchar", unique: true })
   name: string;
 
-  @OneToMany(() => Doctor, (doctor) => doctor.specialization)
+  @OneToMany(() => Doctor, (doctor) => doctor.specialization, {
+    eager: true,
+  })
   doctors: Doctor[];
 }

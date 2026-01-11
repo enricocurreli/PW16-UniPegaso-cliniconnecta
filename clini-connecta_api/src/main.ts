@@ -34,6 +34,7 @@ async function bootstrap() {
     .addTag("Prescrizioni", "Prescrizioni mediche")
     .addTag("Specializzazioni", "Specializzazione dei medici")
     .addTag("Calendario medici", "Disponibilità medici")
+    .addTag("Cliniche", "Gestione cliniche")
     .addBearerAuth(
       {
         type: "http",
