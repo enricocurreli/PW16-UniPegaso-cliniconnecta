@@ -24,6 +24,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Public } from "../auth/decorators/public.decorator";
+import { UserDTO } from "../users/dto/user.dto";
 @ApiTags("Dottori")
 @ApiBearerAuth()
 @Controller("doctors")
@@ -124,7 +125,7 @@ export class DoctorsController {
     status: 404,
     description: "Profilo medico non trovato",
   })
-  getMyProfile(@CurrentUser() user: any) {
+  getMyProfile(@CurrentUser() user: UserDTO) {
     return this.doctorsService.findbyId(user.sub);
   }
   //!---------------------------------
@@ -245,7 +246,7 @@ export class DoctorsController {
     status: 404,
     description: "Profilo medico non trovato",
   })
-  update(@CurrentUser() user: any, @Body() updateDocto: UpdateDoctorDto) {
+  update(@CurrentUser() user: UserDTO, @Body() updateDocto: UpdateDoctorDto) {
     return this.doctorsService.updateProfile(user.sub, updateDocto);
   }
   //!---------------------------------

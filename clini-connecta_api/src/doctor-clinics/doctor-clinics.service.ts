@@ -1,26 +1,38 @@
-import { Injectable } from '@nestjs/common';
-import { CreateDoctorClinicDto } from './dto/create-doctor-clinic.dto';
-import { UpdateDoctorClinicDto } from './dto/update-doctor-clinic.dto';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { DoctorClinic } from "./entities/doctor-clinic.entity";
 
 @Injectable()
 export class DoctorClinicsService {
-  create(createDoctorClinicDto: CreateDoctorClinicDto) {
-    return 'This action adds a new doctorClinic';
-  }
+  constructor(
+    @InjectRepository(DoctorClinic)
+    private doctorClinicRepository: Repository<DoctorClinic>
+  ) {}
 
-  findAll() {
-    return `This action returns all doctorClinics`;
+  async assignDoctorToClinic(doctorId: number, clinicId: number) {
+    const doctorClinic = this.doctorClinicRepository.create({
+      doctor: { id: doctorId },
+      clinic: { id: clinicId },
+    });
+    return await this.doctorClinicRepository.save(doctorClinic);
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} doctorClinic`;
+  async getClinicsByDoctor(doctorId: number) {
+    return await this.doctorClinicRepository.find({
+      where: { doctor: { id: doctorId } },
+      relations: ["clinic"],
+    });
   }
-
-  update(id: number, updateDoctorClinicDto: UpdateDoctorClinicDto) {
-    return `This action updates a #${id} doctorClinic`;
+  async getDoctorsByClinic(clinicId: number) {
+    return await this.doctorClinicRepository.find({
+      where: { clinic: { id: clinicId } },
+      relations: ["doctor"],
+    });
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} doctorClinic`;
+  async removeDoctorFromClinic(doctorId: number, clinicId: number) {
+    return await this.doctorClinicRepository.delete({
+      doctor: { id: doctorId },
+      clinic: { id: clinicId },
+    });
   }
 }

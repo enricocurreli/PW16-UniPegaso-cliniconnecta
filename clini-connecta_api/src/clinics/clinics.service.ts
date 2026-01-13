@@ -43,6 +43,50 @@ export class ClinicsService {
     return clinic;
   }
 
+
+  async findClinicbyQuery(
+    name?: string,
+    city?: string,
+    address?: string,
+    
+  ) {
+    const queryBuilder = this.clinicRepository
+      .createQueryBuilder("clinics")
+      .select("clinics")
+
+    // `%${field}%` case-insensitive che permette di trovare nomi anche con ricerche parziali
+    if (name) {
+      queryBuilder.andWhere("LOWER(clinics.name) LIKE LOWER(:name)", {
+        name: `%${name}%`,
+      });
+    }
+
+    if (city) {
+      queryBuilder.andWhere("LOWER(clinics.city) LIKE LOWER(:city)", {
+        city: `%${city}%`,
+      });
+    }
+
+    if (address) {
+      queryBuilder.andWhere("LOWER(clinics.address) LIKE LOWER(:address)", {
+        address: `%${address}%`,
+      });
+    }
+
+
+
+    const clinics = await queryBuilder.getMany();
+
+    if (!clinics || clinics.length === 0) {
+      throw new NotFoundException(
+        "Nessuna clinica trovata con i criteri specificati"
+      );
+    }
+
+    return clinics;
+  };
+
+
   async update(id: number, updateClinic: UpdateClinicDto) {
     const clinic =  await this.clinicRepository.findOne({
       where: { id },

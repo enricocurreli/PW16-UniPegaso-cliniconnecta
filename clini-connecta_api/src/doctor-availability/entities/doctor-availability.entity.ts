@@ -16,9 +16,6 @@ export class DoctorAvailability {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: "doctor_id" })
-  doctorId: number;
-
   @Column({
     type: "enum",
     enum: DayOfWeek,
@@ -26,11 +23,17 @@ export class DoctorAvailability {
   })
   dayOfWeek: DayOfWeek;
 
-  @Column({ type: "time", name: "start_time" })
+  @Column({ type: "time", name: "start_time" ,nullable: true })
   startTime: string;
 
-  @Column({ type: "time", name: "end_time" })
+  @Column({ type: "time", name: "end_time",nullable: true })
   endTime: string;
+  
+  @Column({ type: "date", name: "valid_from" ,nullable: true})
+  validFrom: Date;
+
+  @Column({ type: "date", name: "valid_to", nullable: true })
+  validTo: Date;
 
   @Column({ default: true, name: "is_active" })
   isActive: boolean;
@@ -41,7 +44,7 @@ export class DoctorAvailability {
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
 
-  @ManyToOne(() => Doctor, { onDelete: "CASCADE" })
+  @ManyToOne(() => Doctor,(doctor) => doctor.availabilities, { onDelete: "CASCADE" })
   @JoinColumn({ name: "doctor_id" })
   doctor: Doctor;
   @ManyToOne(() => Clinic, (clinic) => clinic.availabilities, {

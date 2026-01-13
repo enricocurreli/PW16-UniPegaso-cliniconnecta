@@ -40,7 +40,7 @@ import { DoctorAvailability } from "./doctor-availability/entities/doctor-availa
     DoctorsModule,
     ClinicsModule,
     // MedicalReportsModule,
-    // DoctorClinicsModule,
+    DoctorClinicsModule,
     // PrescriptionsModule,
 
     ConfigModule.forRoot({

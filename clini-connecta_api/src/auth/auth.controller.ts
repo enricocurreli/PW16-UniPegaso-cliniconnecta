@@ -11,6 +11,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { UserDTO } from "../users/dto/user.dto";
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -94,7 +95,7 @@ export class AuthController {
     description: "Non autenticato",
   })
   @Get("whoamI")
-  getProfile(@CurrentUser() user: any) {
+  getProfile(@CurrentUser() user: UserDTO) {
     return user;
   }
 
@@ -129,7 +130,7 @@ export class AuthController {
     description: 'Non autenticato',
   })
   changePassword(
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserDTO,
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
     return this.authService.changePassword(user.sub, changePasswordDto);

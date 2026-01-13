@@ -17,6 +17,7 @@ import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Serialize } from "../interceptor/serializer.interceptor";
 import { PatientDTO } from "./dto/patient.dto";
+import { UserDTO } from "../users/dto/user.dto";
 @ApiTags("Pazienti")
 @ApiBearerAuth()
 @Controller("patients")
@@ -54,7 +55,7 @@ export class PatientsController {
     status: 404,
     description: "Profilo paziente non trovato",
   })
-  getMyProfile(@CurrentUser() user: any) {
+  getMyProfile(@CurrentUser() user: UserDTO) {
     return this.patientsService.getProfilebyUserId(user.sub);
   }
   //!---------------------------------
@@ -103,7 +104,7 @@ export class PatientsController {
     description: "Profilo paziente non trovato",
   })
   updateMyProfile(
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserDTO,
     @Body() updatePatientDto: UpdatePatientDto
   ) {
     return this.patientsService.updateProfile(user.sub, updatePatientDto);

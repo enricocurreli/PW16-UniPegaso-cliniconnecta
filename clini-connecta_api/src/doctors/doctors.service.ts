@@ -18,15 +18,48 @@ export class DoctorsService {
   ) {}
 
   async findbyId(user_id: number) {
-    const doctor = await this.doctorRepository.findOne({
-      where: { user: { id: user_id } },
-      relations: ["user", "specialization"],
-    });
+    const doctor = await this.doctorRepository
+      .createQueryBuilder("doctor")
+      .leftJoinAndSelect("doctor.user", "user")
+      .leftJoinAndSelect("doctor.specialization", "specialization")
+      .leftJoinAndSelect("doctor.availabilities", "availabilities")
+      .leftJoinAndSelect("availabilities.clinic", "clinic")
+      .select([
+        "doctor.id",
+        "doctor.firstName",
+        "doctor.lastName",
+        "doctor.bio",
+        "doctor.phone",
+        "doctor.licenseNumber",
+        "specialization.id",
+        "specialization.name",
+        "user.id",
+        "user.email",
+        "user.role",
+        "user.createdAt",
+        "user.updatedAt",
+        "availabilities.id",
+        "availabilities.dayOfWeek",
+        "availabilities.startTime",
+        "availabilities.endTime",
+        "availabilities.validFrom",
+        "availabilities.validTo",
+        "availabilities.isActive",
+        "availabilities.createdAt",
+        "availabilities.updatedAt",
+        "clinic.id",
+        "clinic.name",
+        "clinic.address",
+      ])
+      .where("user.id = :user_id", { user_id })
+      .getOne();
+
     if (!doctor) {
       throw new NotFoundException("Doctor profile not found");
     }
     return doctor;
   }
+
   // Pazienti
 
   async findbyQuery(
@@ -41,7 +74,7 @@ export class DoctorsService {
       .leftJoinAndSelect("doctor.user", "user")
       .leftJoinAndSelect("doctor.specialization", "specialization");
 
-      // `%${field}%` case-insensitive che permette di trovare nomi anche con ricerche parziali
+    // `%${field}%` case-insensitive che permette di trovare nomi anche con ricerche parziali
     if (firstName) {
       queryBuilder.andWhere("LOWER(doctor.firstName) LIKE LOWER(:firstName)", {
         firstName: `%${firstName}%`,
@@ -92,7 +125,6 @@ export class DoctorsService {
 
   // Aggiorna profilo medico
   async updateProfile(user_id: number, updateDoctor: UpdateDoctorDto) {
-
     //TODO: recupero il medico e verifico che esista
     const doctor = await this.doctorRepository.findOne({
       where: { user: { id: user_id } },
