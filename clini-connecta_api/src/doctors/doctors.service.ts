@@ -115,12 +115,41 @@ export class DoctorsService {
 
   // public
   async findAll() {
-    return await this.doctorRepository.find({
-      relations: ["user", "specialization"],
-      order: {
-        firstName: "DESC",
-      },
-    });
+    return await this.doctorRepository
+      .createQueryBuilder("doctor")
+      .leftJoinAndSelect("doctor.user", "user")
+      .leftJoinAndSelect("doctor.specialization", "specialization")
+      .leftJoinAndSelect("doctor.availabilities", "availabilities")
+      .leftJoinAndSelect("availabilities.clinic", "clinic")
+      .select([
+        "doctor.id",
+        "doctor.firstName",
+        "doctor.lastName",
+        "doctor.bio",
+        "doctor.phone",
+        "doctor.licenseNumber",
+        "specialization.id",
+        "specialization.name",
+        "user.id",
+        "user.email",
+        "user.role",
+        "user.createdAt",
+        "user.updatedAt",
+        "availabilities.id",
+        "availabilities.dayOfWeek",
+        "availabilities.startTime",
+        "availabilities.endTime",
+        "availabilities.validFrom",
+        "availabilities.validTo",
+        "availabilities.isActive",
+        "availabilities.createdAt",
+        "availabilities.updatedAt",
+        "clinic.id",
+        "clinic.name",
+        "clinic.address",
+      ])
+      .orderBy("doctor.firstName", "DESC")
+      .getMany();
   }
 
   // Aggiorna profilo medico

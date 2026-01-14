@@ -10,13 +10,6 @@ export class DoctorClinicsService {
     private doctorClinicRepository: Repository<DoctorClinic>
   ) {}
 
-  async assignDoctorToClinic(doctorId: number, clinicId: number) {
-    const doctorClinic = this.doctorClinicRepository.create({
-      doctor: { id: doctorId },
-      clinic: { id: clinicId },
-    });
-    return await this.doctorClinicRepository.save(doctorClinic);
-  }
   async getClinicsByDoctor(doctorId: number) {
     return await this.doctorClinicRepository.find({
       where: { doctor: { id: doctorId } },

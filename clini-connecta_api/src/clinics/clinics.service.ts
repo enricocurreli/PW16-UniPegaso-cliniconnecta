@@ -30,6 +30,7 @@ export class ClinicsService {
   async findAll() {
     return await this.clinicRepository.find({
       order: { name: "ASC" },
+      relations:['doctorClinics.doctor']
     });
   }
 

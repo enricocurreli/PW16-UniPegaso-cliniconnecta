@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiSchema } from "@nestjs/swagger";
 import {
   IsDateString,
   IsEnum,
@@ -8,7 +8,7 @@ import {
 } from "class-validator";
 import { DayOfWeek } from "../../enums/db-enum.enum";
 import { Type } from "class-transformer";
-
+@ApiSchema({ name: "Creazione disponibilità medico" })
 export class CreateDoctorAvailabilityDto {
   @ApiProperty({
     example: "Lunedì",

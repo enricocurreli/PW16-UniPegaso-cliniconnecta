@@ -23,9 +23,12 @@ import { Public } from "../auth/decorators/public.decorator";
 import { AuthGuard } from "../auth/guard/authGuard.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { RoleStatus } from "../enums/db-enum.enum";
+import { DoctorDTO } from "../doctors/dto/doctor.dto";
+import { Serialize } from "../interceptor/serializer.interceptor";
 
 @ApiTags("Cliniche")
 @ApiBearerAuth()
+@Serialize(DoctorDTO)
 @Controller("clinics")
 export class ClinicsController {
   constructor(private readonly clinicsService: ClinicsService) {}
