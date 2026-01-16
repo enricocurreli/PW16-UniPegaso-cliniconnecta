@@ -16,6 +16,8 @@ import {
   ApiNotFoundResponse,
   ApiBadRequestResponse
 } from '@nestjs/swagger';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RoleStatus } from '../enums/db-enum.enum';
 
 @ApiTags("Medici-Cliniche")
 @Controller('doctor-clinics')
@@ -61,6 +63,7 @@ export class DoctorClinicsController {
     return this.doctorClinicsService.getDoctorsByClinic(clinicId);
   }
 
+  @Roles(RoleStatus.ADMIN)
   @Delete(':doctorId/:clinicId')
   @ApiOperation({ 
     summary: 'Rimuovi associazione medico-clinica',

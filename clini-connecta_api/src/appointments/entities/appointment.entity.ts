@@ -23,8 +23,8 @@ export class Appointment {
   @Column({ type: "time", name: "appointment_time" })
   appointmentTime: string;
 
-  @Column({ name: "duration_minutes", type: "int", default: 30 })
-  durationMinutes: number;
+  @Column({ name: "duration_minutes", type: "int" })
+  durationMinutes: 50;
 
   @Column({
     type: "enum",

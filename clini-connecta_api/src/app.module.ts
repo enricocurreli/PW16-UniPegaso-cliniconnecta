@@ -31,7 +31,7 @@ import { DoctorAvailability } from "./doctor-availability/entities/doctor-availa
 
 @Module({
   imports: [
-    // AppointmentsModule,
+    AppointmentsModule,
     UsersModule,
     AuthModule,
     PatientsModule,
