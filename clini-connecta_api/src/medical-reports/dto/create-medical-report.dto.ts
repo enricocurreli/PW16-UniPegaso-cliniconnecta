@@ -1,8 +1,7 @@
-// create-medical-report.dto.ts
 import { IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 import { ReportType } from '../../enums/db-enum.enum';
-
+@ApiSchema({ name: 'Creazione report medico' })
 export class CreateMedicalReportDto {
   @ApiProperty({
     enum: ReportType,

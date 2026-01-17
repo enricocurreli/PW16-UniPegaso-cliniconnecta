@@ -22,7 +22,7 @@ import {
 } from "@nestjs/swagger";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { RoleStatus } from "../enums/db-enum.enum";
-@ApiTags("Medical Reports")
+@ApiTags("Report medici")
 @ApiBearerAuth()
 @Controller("medical-reports")
 export class MedicalReportsController {

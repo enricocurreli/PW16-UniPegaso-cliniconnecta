@@ -1,6 +1,7 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 import { ReportType } from '../../enums/db-enum.enum';
 import { Expose, Type } from 'class-transformer';
+@ApiSchema({ name: 'Modifica report medico' })
 
 export class UpdateMedicalReportDto {
   @ApiProperty({ example: 1 })

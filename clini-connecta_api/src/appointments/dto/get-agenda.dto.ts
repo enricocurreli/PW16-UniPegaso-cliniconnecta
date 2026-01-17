@@ -1,8 +1,8 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiPropertyOptional, ApiSchema } from "@nestjs/swagger";
 import { IsOptional, IsDateString, IsEnum } from "class-validator";
 import { AppointmentStatus } from "../../enums/db-enum.enum";
 
-
+@ApiSchema({ name: 'Ottieni agenda' })
 export class GetAgendaDto {
   @ApiPropertyOptional({ example: "2026-01-01" })
   @IsOptional()

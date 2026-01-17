@@ -1,7 +1,8 @@
 import { IsDateString, IsInt, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
+@ApiSchema({ name: 'Ottieni Slot medici' })
 export class GetAvailableSlotsDto {
   @ApiProperty({ example: 1 })
   @IsInt()
