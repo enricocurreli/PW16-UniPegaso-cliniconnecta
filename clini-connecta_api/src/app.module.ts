@@ -28,7 +28,6 @@ import { DoctorAvailabilityModule } from './doctor-availability/doctor-availabil
 import { DoctorAvailability } from "./doctor-availability/entities/doctor-availability.entity";
 
 
-
 @Module({
   imports: [
     AppointmentsModule,
@@ -39,10 +38,9 @@ import { DoctorAvailability } from "./doctor-availability/entities/doctor-availa
     SpecializationsModule,
     DoctorsModule,
     ClinicsModule,
-    // MedicalReportsModule,
+    MedicalReportsModule,
     DoctorClinicsModule,
     // PrescriptionsModule,
-
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",

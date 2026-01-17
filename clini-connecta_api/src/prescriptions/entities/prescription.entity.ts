@@ -5,13 +5,26 @@ import { MedicalReport } from "../../medical-reports/entities/medical-report.ent
 export class Prescription {
   @PrimaryGeneratedColumn()
   id: number;
+  
   @Column({ name: "medication_name", type: "varchar" })
   medicationName: string;
+  
   @Column({ type: "varchar" })
   dosage: string;
+  
   @Column({ type: "varchar" })
   frequency: string;
-  @ManyToOne(()=>MedicalReport, (md)=>md.prescriptions, { onDelete: 'CASCADE' } )
-  @JoinColumn({name:'report_id'})
-  report: MedicalReport
+  
+  @Column({ type: "varchar", name: "file_path" })
+  filePath: string; 
+  
+  @Column({ type: "date", name: "start_date" })
+  startDate: Date;
+  
+  @Column({ type: "date", name: "end_date", nullable: true })
+  endDate: Date | null;
+  
+  @ManyToOne(() => MedicalReport, (md) => md.prescriptions, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'report_id' })
+  report: MedicalReport;
 }

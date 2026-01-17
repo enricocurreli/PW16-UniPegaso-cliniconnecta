@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -27,12 +28,12 @@ export class AppointmentsService {
     private availabilityRepo: Repository<DoctorAvailability>,
     @InjectRepository(Patient) private patientRepository: Repository<Patient>,
     private readonly slotsService: SlotsService,
-    private dataSource: DataSource
+    private dataSource: DataSource,
   ) {}
 
   //? SLOT DISPONIBILI
   async getAvailableSlots(
-    query: GetAvailableSlotsDto
+    query: GetAvailableSlotsDto,
   ): Promise<AvailableSlotsResult> {
     const { doctorId, clinicId, date } = query;
     const requestDate = new Date(date);
@@ -48,7 +49,7 @@ export class AppointmentsService {
     });
     if (!availability) {
       throw new NotFoundException(
-        "Nessuna disponibilità trovata per il medico nella clinica selezionata"
+        "Nessuna disponibilità trovata per il medico nella clinica selezionata",
       );
     }
     if (
@@ -56,12 +57,12 @@ export class AppointmentsService {
       requestDate < new Date(availability.validFrom)
     ) {
       throw new BadRequestException(
-        "Data precedente al periodo di validità della disponibilità"
+        "Data precedente al periodo di validità della disponibilità",
       );
     }
     if (availability.validTo && requestDate > new Date(availability.validTo)) {
       throw new BadRequestException(
-        "Data successiva al periodo di validità della disponibilità"
+        "Data successiva al periodo di validità della disponibilità",
       );
     }
 
@@ -82,7 +83,7 @@ export class AppointmentsService {
       availability.startTime,
       availability.endTime,
       50,
-      bookedAppointments
+      bookedAppointments,
     );
     return {
       doctorId,
@@ -133,12 +134,12 @@ export class AppointmentsService {
             dayOfWeek,
             isActive: true,
           },
-        }
+        },
       );
 
       if (!availability) {
         throw new NotFoundException(
-          "Il medico non è disponibile nella data selezionata"
+          "Il medico non è disponibile nella data selezionata",
         );
       }
 
@@ -160,7 +161,7 @@ export class AppointmentsService {
       const slotAvailable = this.slotsService.canBookSlot(
         createAppointmentDto.appointmentTime,
         APPOINTMENT_DURATION,
-        bookedAppointments
+        bookedAppointments,
       );
       if (!slotAvailable) {
         throw new ConflictException("Lo slot selezionato non è disponibile");
@@ -204,21 +205,23 @@ export class AppointmentsService {
   }
 
   async getPatientAgenda(userId: number) {
-
     const patient = await this.patientRepository.findOne({
-      where: {user:{id:userId}}
+      where: { user: { id: userId } },
     });
-    const patientId = patient?.id
-    return await this.appointRepository
+    if (!patient) throw new NotFoundException("Paziente non trovato");
+
+    return this.appointRepository
       .createQueryBuilder("appointment")
       .innerJoin("appointment.patient", "patient")
-      .where("patient.id = :patientId", { patientId })
+      .leftJoinAndSelect("appointment.medicalReports", "medicalReport")
+      .leftJoinAndSelect("medicalReport.prescriptionFiles", "prescriptions")
+      .leftJoinAndSelect("appointment.doctor", "doctor")
+      .leftJoinAndSelect("appointment.clinic", "clinic")
+      .where("patient.id = :patientId", { patientId: patient.id })
       .orderBy("appointment.appointmentDate", "ASC")
       .addOrderBy("appointment.appointmentTime", "ASC")
       .getMany();
   }
-
-
 
   async getDoctorAgenda(doctorId: number, filters: GetAgendaDto) {
     const query = this.appointRepository
@@ -249,21 +252,34 @@ export class AppointmentsService {
       .getMany();
   }
 
-  //!-------------------------------------------------------------------------
+  async remove(appointmentId: number, userId: number) {
+    const appointment = await this.appointRepository.findOne({
+      where: { id: appointmentId },
+      relations: ["patient"],
+    });
+    if (!appointment) throw new NotFoundException("Appuntamento non trovato");
 
-  findAll() {
-    return `This action returns all appointments`;
-  }
+    if (appointment.patient.user.id != userId) {
+      throw new ForbiddenException("Non puoi cancellare questo appuntamento");
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} appointment`;
-  }
+    const now = new Date();
+    const appointmentDateTime = new Date(
+      appointment.appointmentDate.toISOString().split("T")[0] +
+        "T" +
+        appointment.appointmentTime,
+    );
+    const cancelDeadline = new Date(
+      // => 24 ore, 60 minuti per ora, 60 secondi per minuto, 1000 millesecondi per secondo
+      appointmentDateTime.getTime() - 24 * 60 * 60 * 1000,
+    );
+    if (now >= cancelDeadline) {
+      throw new BadRequestException(
+        "Non puoi cancellare un appuntamento con meno di 24 ore di anticipo",
+      );
+    }
 
-  update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
-    return `This action updates a #${id} appointment`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} appointment`;
+    appointment.status = AppointmentStatus.CANCELLATO;
+    return this.appointRepository.save(appointment);
   }
 }

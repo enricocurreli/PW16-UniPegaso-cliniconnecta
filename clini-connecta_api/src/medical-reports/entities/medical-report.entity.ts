@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { ReportType } from "../../enums/db-enum.enum";
@@ -23,12 +24,10 @@ export class MedicalReport {
   diagnosis: string;
   @Column({ type: "varchar", nullable: true })
   treatment: string | null;
-  @Column({ type: "varchar", name: "file_path", nullable: true })
-  filePath: string | null;
-  @CreateDateColumn({ name: "created_at", type:'timestamp' })
+  @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt: Date;
-  @ManyToOne(() => Appointment, (app) => app.medicalReports, { eager: true })
-  @JoinColumn({ name: "appointment_id" })
+  @OneToOne(() => Appointment, (app) => app.medicalReport, { eager: true })
+  @JoinColumn({ name: "appointment_id", referencedColumnName: "id" })
   appointment: Appointment;
   @OneToMany(() => Prescription, (prescription) => prescription.report)
   prescriptions: Prescription[];

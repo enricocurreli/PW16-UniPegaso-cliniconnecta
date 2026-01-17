@@ -26,7 +26,6 @@ import { Roles } from "../auth/decorators/roles.decorator";
 import { RoleStatus } from "../enums/db-enum.enum";
 import { Serialize } from "../interceptor/serializer.interceptor";
 import { PatientDTO } from "../patients/dto/patient.dto";
-import { DoctorDTO } from "../doctors/dto/doctor.dto";
 import { Public } from "../auth/decorators/public.decorator";
 import { GetAvailableSlotsDto } from "./dto/get-available-slots.dto";
 import { AvailableSlotsResult } from "./types/available-slots.type";
@@ -67,7 +66,7 @@ export class AppointmentsController {
     description: "Medico o clinica non trovati",
   })
   async getAvailableSlots(
-    @Query() query: GetAvailableSlotsDto
+    @Query() query: GetAvailableSlotsDto,
   ): Promise<AvailableSlotsResult> {
     return this.appointmentsService.getAvailableSlots(query);
   }
@@ -103,54 +102,46 @@ export class AppointmentsController {
   })
   async create(
     @CurrentUser() user: UserDTO,
-    @Body() createAppointmentDto: CreateAppointmentDto
+    @Body() createAppointmentDto: CreateAppointmentDto,
   ): Promise<Appointment> {
     return this.appointmentsService.create(user, createAppointmentDto);
   }
 
-
-
-  @Get("my")
+  @Get("patient-appointments")
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Agenda del paziente" })
-  async getMyAppointments(
-    @CurrentUser() user: UserDTO,
-  ) {
+  @ApiOperation({
+    summary: "Agenda del paziente",
+    description:
+      "Restituisce tutti gli appuntamenti del paziente loggato, includendo il medical report completo e i file di prescrizione caricati.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Lista appuntamenti con report e prescrizioni",
+  })
+  async getMyAppointments(@CurrentUser() user: UserDTO) {
     return this.appointmentsService.getPatientAgenda(user.sub);
   }
 
-
-
-  @Get("doctor")
+  @Get("doctor-appointments")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Agenda del medico" })
   async getDoctorAppointments(
     @CurrentUser() user: UserDTO,
-    @Query() query: GetAgendaDto
+    @Query() query: GetAgendaDto,
   ) {
     return this.appointmentsService.getDoctorAgenda(user.sub, query);
   }
 
-  @Get()
-  findAll() {
-    return this.appointmentsService.findAll();
-  }
-
-  @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.appointmentsService.findOne(+id);
-  }
-
-  @Patch(":id")
-  update(
-    @Param("id") id: string,
-    @Body() updateAppointmentDto: UpdateAppointmentDto
-  ) {
-    return this.appointmentsService.update(+id, updateAppointmentDto);
-  }
-
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.appointmentsService.remove(+id);
+  @ApiOperation({
+    summary: "Cancella un appuntamento (solo prima della data/ora)",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Appuntamento cancellato",
+    type: Appointment,
+  })
+  remove(@CurrentUser() user: UserDTO, @Param("id") id: string) {
+    return this.appointmentsService.remove(parseInt(id), user.sub);
   }
 }

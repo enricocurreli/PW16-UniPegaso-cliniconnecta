@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { AppointmentStatus } from "../../enums/db-enum.enum";
@@ -54,6 +55,6 @@ export class Appointment {
   @JoinColumn({ name: "clinic_id" })
   clinic: Clinic;
   
-  @OneToMany(() => MedicalReport, (report) => report.appointment)
-  medicalReports: MedicalReport[];
+  @OneToOne(() => MedicalReport, (report) => report.appointment)
+  medicalReport: MedicalReport;
 }
