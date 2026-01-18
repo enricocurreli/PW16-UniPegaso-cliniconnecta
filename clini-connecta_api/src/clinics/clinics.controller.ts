@@ -42,7 +42,29 @@ export class ClinicsController {
   })
   @ApiResponse({
     status: 200,
-    description: "Lista delle cliniche recuperata con successo",
+    description: "Lista cliniche trovate",
+    schema: {
+      example: [
+        {
+          id: 1,
+          name: "Centro le Rose",
+          address: "Via delle cliniche 29",
+          city: "Roma",
+          postalCode: "00165",
+          phone: "+39 06 87654321",
+          createdAt: "2026-01-11T22:54:54.221Z",
+        },
+        {
+          id: 2,
+          name: "Poliambulatorio Colosseo",
+          address: "Via dei Fori Imperiali 789",
+          city: "Roma",
+          postalCode: "00186",
+          phone: "+39 06 55512233",
+          createdAt: "2026-01-11T22:55:34.497Z",
+        },
+      ],
+    },
   })
   @ApiResponse({
     status: 500,
@@ -158,7 +180,29 @@ export class ClinicsController {
   })
   @ApiResponse({
     status: 200,
-    description: "Clinica recuperata con successo",
+    description: "Cliniche trovata con successo",
+    schema: {
+      example: [
+        {
+          id: 1,
+          name: "Centro le Rose",
+          address: "Via delle cliniche 29",
+          city: "Roma",
+          postalCode: "00165",
+          phone: "+39 06 87654321",
+          createdAt: "2026-01-11T22:54:54.221Z",
+        },
+        {
+          id: 2,
+          name: "Poliambulatorio Colosseo",
+          address: "Via dei Fori Imperiali 789",
+          city: "Roma",
+          postalCode: "00186",
+          phone: "+39 06 55512233",
+          createdAt: "2026-01-11T22:55:34.497Z",
+        },
+      ],
+    },
   })
   @ApiResponse({
     status: 404,

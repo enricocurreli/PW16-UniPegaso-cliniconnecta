@@ -49,7 +49,7 @@ export class AppointmentsService {
     });
     if (!availability) {
       throw new NotFoundException(
-        "Nessuna disponibilità trovata per il medico nella clinica selezionata",
+        "No availability found for the doctor in the selected clinic",
       );
     }
     if (
@@ -57,12 +57,12 @@ export class AppointmentsService {
       requestDate < new Date(availability.validFrom)
     ) {
       throw new BadRequestException(
-        "Data precedente al periodo di validità della disponibilità",
+        "Date prior to the period of validity of the availability",
       );
     }
     if (availability.validTo && requestDate > new Date(availability.validTo)) {
       throw new BadRequestException(
-        "Data successiva al periodo di validità della disponibilità",
+        "Date after the period of validity of the availability",
       );
     }
 
@@ -104,7 +104,7 @@ export class AppointmentsService {
     const patient = await this.patientRepository.findOne({
       where: { user: { id: user.sub } },
     });
-    if (!patient) throw new NotFoundException("Paziente non trovato");
+    if (!patient) throw new NotFoundException("Patient not found");
 
     // Questo metodo garantisce che una prenotazione venga fatta solo se, in quel preciso istante, nessun altro può farla prima di te
     const queryRunner = this.dataSource.createQueryRunner();
@@ -139,7 +139,7 @@ export class AppointmentsService {
 
       if (!availability) {
         throw new NotFoundException(
-          "Il medico non è disponibile nella data selezionata",
+          "The doctor is not available on the selected date",
         );
       }
 
@@ -147,14 +147,18 @@ export class AppointmentsService {
         availability.validFrom &&
         requestDate < new Date(availability.validFrom)
       ) {
-        throw new BadRequestException("Data precedente al periodo di validità");
+        throw new BadRequestException(
+        "Date prior to the period of validity of the availability",
+      );
       }
 
       if (
         availability.validTo &&
         requestDate > new Date(availability.validTo)
       ) {
-        throw new BadRequestException("Data successiva al periodo di validità");
+        throw new BadRequestException(
+        "Date after to the period of validity of the availability",
+      );;
       }
 
       // verifico slot richiesto
@@ -164,7 +168,7 @@ export class AppointmentsService {
         bookedAppointments,
       );
       if (!slotAvailable) {
-        throw new ConflictException("Lo slot selezionato non è disponibile");
+        throw new ConflictException("The selected slot is not available");
       }
 
       const newAppointment = this.appointRepository.create({
@@ -208,13 +212,12 @@ export class AppointmentsService {
     const patient = await this.patientRepository.findOne({
       where: { user: { id: userId } },
     });
-    if (!patient) throw new NotFoundException("Paziente non trovato");
+    if (!patient) throw new NotFoundException("Patient not found");
 
     return this.appointRepository
       .createQueryBuilder("appointment")
       .innerJoin("appointment.patient", "patient")
-      .leftJoinAndSelect("appointment.medicalReports", "medicalReport")
-      .leftJoinAndSelect("medicalReport.prescriptionFiles", "prescriptions")
+      .leftJoinAndSelect("appointment.medicalReport", "medicalReport")
       .leftJoinAndSelect("appointment.doctor", "doctor")
       .leftJoinAndSelect("appointment.clinic", "clinic")
       .where("patient.id = :patientId", { patientId: patient.id })
@@ -257,10 +260,10 @@ export class AppointmentsService {
       where: { id: appointmentId },
       relations: ["patient"],
     });
-    if (!appointment) throw new NotFoundException("Appuntamento non trovato");
+    if (!appointment) throw new NotFoundException("Appointment not found");
 
     if (appointment.patient.user.id != userId) {
-      throw new ForbiddenException("Non puoi cancellare questo appuntamento");
+      throw new ForbiddenException("You can't cancel this appointment");
     }
 
     const now = new Date();
@@ -275,7 +278,7 @@ export class AppointmentsService {
     );
     if (now >= cancelDeadline) {
       throw new BadRequestException(
-        "Non puoi cancellare un appuntamento con meno di 24 ore di anticipo",
+        "You cannot cancel an appointment less than 24 hours in advance",
       );
     }
 

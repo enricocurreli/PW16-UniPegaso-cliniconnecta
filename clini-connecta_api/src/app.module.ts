@@ -40,7 +40,7 @@ import { DoctorAvailability } from "./doctor-availability/entities/doctor-availa
     ClinicsModule,
     MedicalReportsModule,
     DoctorClinicsModule,
-    // PrescriptionsModule,
+    PrescriptionsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",

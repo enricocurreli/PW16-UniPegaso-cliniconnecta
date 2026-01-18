@@ -80,7 +80,7 @@ export class ClinicsService {
 
     if (!clinics || clinics.length === 0) {
       throw new NotFoundException(
-        "Nessuna clinica trovata con i criteri specificati"
+        "No clinics found with the specified criteria"
       );
     }
 

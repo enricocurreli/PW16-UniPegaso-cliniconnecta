@@ -1,11 +1,44 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePrescriptionDto } from './dto/create-prescription.dto';
-import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { CreatePrescriptionDto } from "./dto/create-prescription.dto";
+import { UpdatePrescriptionDto } from "./dto/update-prescription.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Prescription } from "./entities/prescription.entity";
+import { Repository } from "typeorm";
+import { MedicalReport } from "../medical-reports/entities/medical-report.entity";
 
 @Injectable()
 export class PrescriptionsService {
-  create(createPrescriptionDto: CreatePrescriptionDto) {
-    return 'This action adds a new prescription';
+  constructor(
+    @InjectRepository(Prescription)
+    private prescriptionRepository: Repository<Prescription>,
+    @InjectRepository(MedicalReport)
+    private medicalReportRepository: Repository<MedicalReport>,
+  ) {}
+  async create(
+    userId: number,
+    medicalRepoerId: number,
+    file: Express.Multer.File,
+    createPrescriptionDto: CreatePrescriptionDto,
+  ) {
+    const report = await this.medicalReportRepository.findOne({
+      where: { id: medicalRepoerId },
+      relations: ["doctor", "appointment"],
+    });
+    if (!report) {
+      throw new NotFoundException("Report not found");
+    }
+    if (report.appointment.doctor.user.id !== userId) {
+      throw new ForbiddenException(
+        "You are not authorized to complete this report",
+      );
+    }
+
+    
+    
   }
 
   findAll() {

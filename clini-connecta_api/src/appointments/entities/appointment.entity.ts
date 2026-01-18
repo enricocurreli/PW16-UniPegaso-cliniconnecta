@@ -57,4 +57,5 @@ export class Appointment {
   
   @OneToOne(() => MedicalReport, (report) => report.appointment)
   medicalReport: MedicalReport;
+  
 }

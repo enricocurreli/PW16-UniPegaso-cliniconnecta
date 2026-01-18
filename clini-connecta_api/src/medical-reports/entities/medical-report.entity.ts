@@ -20,15 +20,20 @@ export class MedicalReport {
   reportType: ReportType;
   @Column({ type: "varchar" })
   title: string;
-  @Column({ type: "varchar" })
+  @Column({ type: "text" })
   diagnosis: string;
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "text", nullable: true })
   treatment: string | null;
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt: Date;
-  @OneToOne(() => Appointment, (app) => app.medicalReport, { eager: true })
+  @OneToOne(() => Appointment, (app) => app.medicalReport)
   @JoinColumn({ name: "appointment_id", referencedColumnName: "id" })
   appointment: Appointment;
-  @OneToMany(() => Prescription, (prescription) => prescription.report)
+  @Column({ name: "appointment_id" })
+  appointmentId: number;
+  @OneToMany(() => Prescription, (prescription) => prescription.report, {
+    cascade: true,
+  })
   prescriptions: Prescription[];
 }
+ 

@@ -36,19 +36,4 @@ export class CreateMedicalReportDto {
   @IsOptional()
   treatment?: string;
 
-  @ApiPropertyOptional({
-    description: 'Percorso del file allegato',
-    example: '/uploads/reports/report_123.pdf'
-  })
-  @IsString()
-  @IsOptional()
-  filePath?: string;
-
-  @ApiProperty({
-    description: 'ID dell\'appuntamento associato',
-    example: 1
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  appointmentId: number;
 }

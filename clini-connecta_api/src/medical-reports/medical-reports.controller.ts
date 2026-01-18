@@ -74,26 +74,48 @@ export class MedicalReportsController {
     );
   }
 
-  @Get()
-  findAll() {
-    return this.medicalReportsService.findAll();
-  }
-
-  @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.medicalReportsService.findOne(+id);
-  }
-
-  @Patch(":id")
+  @Roles(RoleStatus.DOTTORE)
+  @Patch("update/:id")
+  @ApiOperation({
+    summary: "Modifica il medical report di un appuntamento",
+    description: "Il medico modifica il referto di una visita.",
+  })
+  @ApiParam({
+    name: "appointmentId",
+    type: Number,
+    description: "ID dell'appuntamento",
+    example: 12,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Referto medico aggiornato con successo",
+    type: MedicalReport,
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Utente non autorizzato a modificare il referto",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Referto medico non trovato",
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Nessun campo valido da aggiornare",
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Non autenticato",
+  })
   update(
-    @Param("id") id: string,
+    @CurrentUser() user: UserDTO,
+    @Param("id") reportId: string,
     @Body() updateMedicalReportDto: UpdateMedicalReportDto,
   ) {
-    return this.medicalReportsService.update(+id, updateMedicalReportDto);
-  }
-
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.medicalReportsService.remove(+id);
+    return this.medicalReportsService.update(
+      user.sub,
+      parseInt(reportId),
+      updateMedicalReportDto,
+    );
   }
 }

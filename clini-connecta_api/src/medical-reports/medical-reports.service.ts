@@ -32,47 +32,62 @@ export class MedicalReportsService {
       relations: ["doctor", "medicalReport"],
     });
     if (!appointment) {
-      throw new NotFoundException("Appuntamento non trovato");
+      throw new NotFoundException("Appointment not found");
     }
     if (appointment.doctor.id !== doctorId) {
       throw new ForbiddenException(
-        "Non sei autorizzato a compilare questo referto",
+        "You are not authorized to complete this report",
       );
     }
     if (appointment.status === AppointmentStatus.CANCELLATO) {
       throw new BadRequestException(
-        "Non puoi creare un referto per un appuntamento cancellato",
+        "You can't create a report for a cancelled appointment",
       );
     }
     if (appointment.medicalReport) {
       throw new ConflictException(
-        "Esiste già un referto per questo appuntamento",
+        "There is already a report for this appointment",
       );
     }
 
     const report = this.medicalReportRepository.create({
       ...createMedicalReportDto,
-      appointment,
+      appointmentId: appointmentId,
     });
-    await this.medicalReportRepository.save(report);
+
+    const savedReport = await this.medicalReportRepository.save(report);
+
     appointment.status = AppointmentStatus.COMPLETATO;
+
     await this.appointmentRepository.save(appointment);
-    return report;
+
+    return savedReport;
   }
 
-  findAll() {
-    return `This action returns all medicalReports`;
-  }
+  async update(userId: number, reportId: number, dto: UpdateMedicalReportDto) {
+    const report = await this.medicalReportRepository.findOne({
+      where: { id: reportId },
+      relations: ["appointment", "appointment.doctor"],
+    });
+    if (!report) {
+      throw new NotFoundException("Appointment not found");
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} medicalReport`;
-  }
+    if (report.appointment.doctor.user.id != userId) {
+  throw new ForbiddenException(
+        "You are not authorized to update this report",
+      );
+    }
 
-  update(id: number, updateMedicalReportDto: UpdateMedicalReportDto) {
-    return `This action updates a #${id} medicalReport`;
-  }
+    Object.entries(dto).forEach(([key, value]) => {
+      if (value !== undefined) {
+        report[key] = value;
+      }
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} medicalReport`;
+    await this.medicalReportRepository.save(report);
+    return await this.medicalReportRepository.findOne({
+      where: { id: reportId },
+    });
   }
 }
