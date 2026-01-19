@@ -1,7 +1,7 @@
 import { Exclude, Expose, Type } from "class-transformer";
 import { Gender } from "../../enums/db-enum.enum";
 
-// DTO per l'oggetto user annidato
+
 export class UserNestedDTO {
   @Expose()
   id: number;

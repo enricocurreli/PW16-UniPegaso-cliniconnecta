@@ -29,7 +29,32 @@ export class MedicalReportsController {
   constructor(private readonly medicalReportsService: MedicalReportsService) {}
 
   @Roles(RoleStatus.DOTTORE)
-  @Post("appointments/:appointmentId")
+  @Get('reports')
+  @ApiOperation({ 
+    summary: 'Recupera tutti i referti medici del medico loggato',
+    description: 'Restituisce l\'elenco completo di tutti i referti medici creati dal medico autenticato, includendo diagnosi, trattamento e informazioni degli appuntamenti associati'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista dei referti medici recuperata con successo',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non autenticato - Token JWT mancante o non valido',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Accesso negato - Solo i medici possono accedere ai propri referti',
+  })
+  getMedicalReport(
+    @CurrentUser() user: UserDTO,
+  ) {
+
+    return this.medicalReportsService.getMedicalReports(user.sub)
+  }
+
+  @Roles(RoleStatus.DOTTORE)
+  @Post("create/:appointmentId")
   @ApiOperation({
     summary: "Crea il medical report di un appuntamento",
     description:

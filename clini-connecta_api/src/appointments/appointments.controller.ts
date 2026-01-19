@@ -43,7 +43,7 @@ export class AppointmentsController {
   @ApiOperation({
     summary: "Recupera gli slot disponibili per un medico in una clinica",
     description: `
-    Restituisce tutti gli slot disponibili per:
+   " Restituisce tutti gli slot disponibili per:
     - un medico specifico
     - una clinica specifica
     - una data specifica
@@ -52,7 +52,7 @@ export class AppointmentsController {
     - disponibilità del medico
     - periodo di validità
     - appuntamenti già confermati
-    - durata standard della visita
+    - durata standard della visita"
     `,
   })
   @ApiResponse({

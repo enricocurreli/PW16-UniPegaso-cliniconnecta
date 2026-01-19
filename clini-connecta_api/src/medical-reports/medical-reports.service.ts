@@ -22,6 +22,14 @@ export class MedicalReportsService {
     private readonly appointmentRepository: Repository<Appointment>,
   ) {}
 
+  async getMedicalReports(userId:number){
+      const reports = await this.medicalReportRepository.find({
+      where: { appointment:{doctor:{user:{id:userId}}} },
+    });
+
+    return reports;
+  }
+  
   async createMedicalReport(
     createMedicalReportDto: CreateMedicalReportDto,
     appointmentId: number,

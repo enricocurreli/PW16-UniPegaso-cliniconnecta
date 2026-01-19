@@ -36,7 +36,7 @@ export class DoctorAvailabilityService {
       throw new NotFoundException("Doctor not found for this user");
     }
 
-    // transazione in modo da poter creare disponibilità + creare associazione tra medico e clinico
+    // transazione in modo da poter creare disponibilità + creare associazione tra medico e clinica
     return await this.dataSource.transaction(async (manager) => {
   
       const availability = manager.create(DoctorAvailability, {
