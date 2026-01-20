@@ -26,6 +26,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { AuthGuard } from "./auth/guard/authGuard.guard";
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availability.module';
 import { DoctorAvailability } from "./doctor-availability/entities/doctor-availability.entity";
+import { SeedModule } from './seed/seed.module';
 
 
 @Module({
@@ -71,6 +72,7 @@ import { DoctorAvailability } from "./doctor-availability/entities/doctor-availa
         logging: configService.get<string>("NODE_ENV") === "development",
       }),
     }),
+    SeedModule,
   ],
   controllers: [],
   providers: [],
