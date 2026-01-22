@@ -34,7 +34,7 @@ export class Doctor {
   @Column({ type: "text", nullable: true })
   bio: string | null;
 
-  @Column({ nullable: true })
+  @Column({type:"varchar", nullable: true })
   licenseNumber: string;
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt: Date;
