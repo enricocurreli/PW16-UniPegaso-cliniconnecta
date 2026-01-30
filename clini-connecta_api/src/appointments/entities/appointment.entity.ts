@@ -43,15 +43,15 @@ export class Appointment {
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt: Date;
 
-  @ManyToOne(() => Doctor, (doctor) => doctor.appointments, { eager: true })
+  @ManyToOne(() => Doctor, (doctor) => doctor.appointments, { eager: true, cascade: true })
   @JoinColumn({ name: "doctor_id" })
   doctor: Doctor;
 
-  @ManyToOne(() => Patient, (patient) => patient.appointments, { eager: true })
+  @ManyToOne(() => Patient, (patient) => patient.appointments, { eager: true, cascade: true })
   @JoinColumn({ name: "patient_id" })
   patient: Patient;
 
-  @ManyToOne(() => Clinic, (clinic) => clinic.appointments, { eager: true })
+  @ManyToOne(() => Clinic, (clinic) => clinic.appointments, { eager: true, cascade: true })
   @JoinColumn({ name: "clinic_id" })
   clinic: Clinic;
   
