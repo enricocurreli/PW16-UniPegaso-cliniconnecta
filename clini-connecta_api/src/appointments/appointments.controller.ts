@@ -107,6 +107,7 @@ export class AppointmentsController {
     return this.appointmentsService.create(user, createAppointmentDto);
   }
 
+  @Roles(RoleStatus.PAZIENTE)
   @Get("patient-appointments")
   @ApiBearerAuth()
   @ApiOperation({
@@ -122,6 +123,7 @@ export class AppointmentsController {
     return this.appointmentsService.getPatientAgenda(user.sub);
   }
 
+  @Roles(RoleStatus.DOTTORE)
   @Get("doctor-appointments")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Agenda del medico" })

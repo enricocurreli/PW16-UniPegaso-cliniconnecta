@@ -75,7 +75,7 @@ export class ClinicsController {
   }
 
   @Roles(RoleStatus.ADMIN)
-  @Post()
+  @Post('create')
   @ApiOperation({
     summary: "Crea una nuova clinica",
     description:
