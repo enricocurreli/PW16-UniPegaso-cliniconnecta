@@ -126,7 +126,7 @@ export class DoctorsController {
     description: "Profilo medico non trovato",
   })
   getMyProfile(@CurrentUser() user: UserDTO) {
-    return this.doctorsService.findbyId(user.sub);
+    return this.doctorsService.findById(user.sub);
   }
   //!---------------------------------
 

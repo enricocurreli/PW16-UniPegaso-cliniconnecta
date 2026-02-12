@@ -299,58 +299,94 @@ export class SeedService {
     return this.doctorClinicRepo.save(doctorClinics);
   }
 
-  private async createDoctorAvailabilities(
-    doctors: Doctor[],
-    doctorClinics: DoctorClinic[],
-  ): Promise<DoctorAvailability[]> {
-    const availabilities: DoctorAvailability[] = [];
+private async createDoctorAvailabilities(
+  doctors: Doctor[],
+  doctorClinics: DoctorClinic[],
+): Promise<DoctorAvailability[]> {
+  const availabilities: DoctorAvailability[] = [];
 
-    // Raggruppa DoctorClinic per dottore
-    const doctorClinicsMap = new Map<number, DoctorClinic[]>();
-    for (const dc of doctorClinics) {
-      if (!doctorClinicsMap.has(dc.doctor.id)) {
-        doctorClinicsMap.set(dc.doctor.id, []);
-      }
-      doctorClinicsMap.get(dc.doctor.id)?.push(dc);
+  // Raggruppa DoctorClinic per dottore
+  const doctorClinicsMap = new Map<number, DoctorClinic[]>();
+  for (const dc of doctorClinics) {
+    if (!doctorClinicsMap.has(dc.doctor.id)) {
+      doctorClinicsMap.set(dc.doctor.id, []);
     }
-
-    for (const doctor of doctors) {
-      const dcs = doctorClinicsMap.get(doctor.id) || [];
-
-      for (const dc of dcs) {
-        // 2-3 giorni di disponibilità per clinica
-        const days = faker.helpers.arrayElements(
-          [
-            DayOfWeek.Lunedì,
-            DayOfWeek.Martedì,
-            DayOfWeek.Mercoledì,
-            DayOfWeek.Giovedì,
-            DayOfWeek.Venerdì,
-          ],
-          { min: 2, max: 3 },
-        );
-
-        for (const day of days) {
-          const startHour = faker.helpers.arrayElement([8, 9, 14]);
-          const endHour = startHour < 12 ? 13 : faker.helpers.arrayElement([18, 19]);
-
-          const availability = this.availabilityRepo.create({
-            doctor: dc.doctor,
-            clinic: dc.clinic,
-            dayOfWeek: day,
-            startTime: `${String(startHour).padStart(2, '0')}:00`,
-            endTime: `${String(endHour).padStart(2, '0')}:00`,
-            validFrom: faker.date.recent({ days: 30 }),
-            validTo: faker.date.future({ years: 1 }),
-            isActive: true,
-          });
-          availabilities.push(availability);
-        }
-      }
-    }
-
-    return this.availabilityRepo.save(availabilities);
+    doctorClinicsMap.get(dc.doctor.id)?.push(dc);
   }
+
+  for (const doctor of doctors) {
+    const dcs = doctorClinicsMap.get(doctor.id) || [];
+    
+    // 👇 NUOVO: Set per tracciare combinazioni giorno+orario già usate per questo dottore
+    const usedSlots = new Set<string>();
+
+    for (const dc of dcs) {
+      // 2-3 giorni di disponibilità per clinica
+      const numDays = faker.number.int({ min: 2, max: 3 });
+      let assignedDays = 0;
+      let attempts = 0;
+      const maxAttempts = 20; // Evita loop infiniti
+
+      while (assignedDays < numDays && attempts < maxAttempts) {
+        attempts++;
+
+        // Genera giorno e orario casuali
+        const day = faker.helpers.arrayElement([
+          DayOfWeek.Lunedì,
+          DayOfWeek.Martedì,
+          DayOfWeek.Mercoledì,
+          DayOfWeek.Giovedì,
+          DayOfWeek.Venerdì,
+        ]);
+
+        const startHour = faker.helpers.arrayElement([8, 9, 14]);
+        const endHour = startHour < 12 ? 13 : faker.helpers.arrayElement([18, 19]);
+        const startTime = `${String(startHour).padStart(2, '0')}:00`;
+        const endTime = `${String(endHour).padStart(2, '0')}:00`;
+
+        // 👇 Crea chiave unica: giorno + orario
+        const slotKey = `${day}-${startTime}-${endTime}`;
+
+        // 👇 Controlla se questo slot è già usato per questo dottore
+        if (usedSlots.has(slotKey)) {
+          console.log(
+            `⚠️  Dottore ${doctor.id}: slot ${slotKey} già occupato, riprovo...`,
+          );
+          continue; // Prova un altro giorno/orario
+        }
+
+        // 👇 Slot disponibile! Aggiungi al Set
+        usedSlots.add(slotKey);
+        assignedDays++;
+
+        const availability = this.availabilityRepo.create({
+          doctor: dc.doctor,
+          clinic: dc.clinic,
+          dayOfWeek: day,
+          startTime,
+          endTime,
+          validFrom: faker.date.recent({ days: 30 }),
+          validTo: faker.date.future({ years: 1 }),
+          isActive: true,
+        });
+
+        availabilities.push(availability);
+
+        console.log(
+          `✅ Dottore ${doctor.id}: assegnato ${day} ${startTime}-${endTime} presso clinica ${dc.clinic.id}`,
+        );
+      }
+
+      if (assignedDays < numDays) {
+        console.warn(
+          `⚠️  Dottore ${doctor.id}: non è stato possibile assegnare tutti i giorni richiesti (${assignedDays}/${numDays})`,
+        );
+      }
+    }
+  }
+
+  return this.availabilityRepo.save(availabilities);
+}
 
   private async createAppointments(
     doctors: Doctor[],

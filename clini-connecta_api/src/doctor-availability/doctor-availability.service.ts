@@ -65,9 +65,9 @@ export class DoctorAvailabilityService {
     });
   }
 
-  async findAllByDoc(user_id: number) {
+  async findAllByDoc(doctor_id: number) {
     const doctor = await this.doctorRepo.findOne({
-      where: { user: { id: user_id } },
+      where: { id: doctor_id },
       relations: ["availabilities", "availabilities.clinic"],
     });
 

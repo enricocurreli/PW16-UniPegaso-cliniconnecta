@@ -42,7 +42,7 @@ export class MedicalReportsService {
     if (!appointment) {
       throw new NotFoundException("Appointment not found");
     }
-    if (appointment.doctor.id !== doctorId) {
+    if (appointment.doctor.user.id !== doctorId) {
       throw new ForbiddenException(
         "You are not authorized to complete this report",
       );

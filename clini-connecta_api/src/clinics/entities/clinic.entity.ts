@@ -12,31 +12,31 @@ import { DoctorAvailability } from "../../doctor-availability/entities/doctor-av
 @Entity({ name: "CLINICS" })
 export class Clinic {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ type: "varchar" })
-  name: string;
+  name!: string;
 
   @Column({ type: "varchar" })
-  address: string;
+  address!: string;
 
   @Column({ type: "varchar" })
-  city: string;
+  city!: string;
 
   @Column({ name: "postal_code", type: "varchar" })
-  postalCode: string;
+  postalCode!: string;
 
   @Column({ type: "varchar" })
-  phone: string;
+  phone!: string;
 
   @CreateDateColumn({ name: "created_at" })
-  createdAt: Date;
+  createdAt!: Date;
 
   @OneToMany(() => DoctorClinic, (dc) => dc.clinic)
-  doctorClinics: DoctorClinic[];
+  doctorClinics!: DoctorClinic[];
 
   @OneToMany(() => Appointment, (appointment) => appointment.clinic)
-  appointments: Appointment[];
+  appointments!: Appointment[];
   @OneToMany(() => DoctorAvailability, (availability) => availability.clinic)
-  availabilities: DoctorAvailability[];
+  availabilities!: DoctorAvailability[];
 }

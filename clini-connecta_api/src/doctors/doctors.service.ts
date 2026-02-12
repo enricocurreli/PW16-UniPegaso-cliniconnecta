@@ -14,16 +14,22 @@ export class DoctorsService {
   constructor(
     @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
     @InjectRepository(Specialization)
-    private specializationRepository: Repository<Specialization>
+    private specializationRepository: Repository<Specialization>,
   ) {}
 
-  async findbyId(user_id: number) {
+  async findById(user_id: number) {
+    const today = new Date().toISOString().split("T")[0];
     const doctor = await this.doctorRepository
       .createQueryBuilder("doctor")
-      .leftJoinAndSelect("doctor.user", "user")
-      .leftJoinAndSelect("doctor.specialization", "specialization")
-      .leftJoinAndSelect("doctor.availabilities", "availabilities")
-      .leftJoinAndSelect("availabilities.clinic", "clinic")
+      .leftJoin("doctor.user", "user")
+      .leftJoin("doctor.specialization", "specialization")
+      .leftJoin(
+        "doctor.availabilities",
+        "availabilities",
+        "availabilities.isActive = true AND availabilities.validTo >= :today",
+        { today },
+      )
+      .leftJoin("availabilities.clinic", "clinic")
       .select([
         "doctor.id",
         "doctor.firstName",
@@ -31,13 +37,16 @@ export class DoctorsService {
         "doctor.bio",
         "doctor.phone",
         "doctor.licenseNumber",
-        "specialization.id",
-        "specialization.name",
+      ])
+      .addSelect(["specialization.id", "specialization.name"])
+      .addSelect([
         "user.id",
         "user.email",
         "user.role",
         "user.createdAt",
         "user.updatedAt",
+      ])
+      .addSelect([
         "availabilities.id",
         "availabilities.dayOfWeek",
         "availabilities.startTime",
@@ -47,10 +56,8 @@ export class DoctorsService {
         "availabilities.isActive",
         "availabilities.createdAt",
         "availabilities.updatedAt",
-        "clinic.id",
-        "clinic.name",
-        "clinic.address",
       ])
+      .addSelect(["clinic.id", "clinic.name", "clinic.address"])
       .where("user.id = :user_id", { user_id })
       .getOne();
 
@@ -66,7 +73,7 @@ export class DoctorsService {
     firstName?: string,
     lastName?: string,
     email?: string,
-    specialization?: string
+    specialization?: string,
   ) {
     // Cosi da visualizzare anche la parte user e specialization, altrimenti non vedrei l'email
     const queryBuilder = this.doctorRepository
@@ -98,7 +105,7 @@ export class DoctorsService {
         "LOWER(specialization.name) LIKE LOWER(:specialization)",
         {
           specialization: `%${specialization}%`,
-        }
+        },
       );
     }
 
@@ -106,7 +113,7 @@ export class DoctorsService {
 
     if (!doctors || doctors.length === 0) {
       throw new NotFoundException(
-        "Nessun medico trovato con i criteri specificati"
+        "Nessun medico trovato con i criteri specificati",
       );
     }
 
@@ -179,8 +186,8 @@ export class DoctorsService {
     //TODO: pulizia dei valori undifined o null per non rischiare sovrascrizione, cosi facendo prendo solo i valori effettivamente modificati
     const updates = Object.fromEntries(
       Object.entries(otherUpdates).filter(
-        ([_, v]) => v !== undefined && v !== null
-      )
+        ([_, v]) => v !== undefined && v !== null,
+      ),
     );
 
     Object.assign(doctor, updates);

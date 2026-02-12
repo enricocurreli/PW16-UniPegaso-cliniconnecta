@@ -27,10 +27,15 @@ import { AuthGuard } from "./auth/guard/authGuard.guard";
 import { DoctorAvailabilityModule } from './doctor-availability/doctor-availability.module';
 import { DoctorAvailability } from "./doctor-availability/entities/doctor-availability.entity";
 import { SeedModule } from './seed/seed.module';
-
+import { join } from "path";
+import { ServeStaticModule } from "@nestjs/serve-static";
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..", "uploads"),
+      serveRoot: "/uploads", 
+    }),
     AppointmentsModule,
     UsersModule,
     AuthModule,

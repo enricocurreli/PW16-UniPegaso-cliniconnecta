@@ -17,40 +17,40 @@ import { DoctorAvailability } from "../../doctor-availability/entities/doctor-av
 @Entity({ name: "DOCTORS" })
 export class Doctor {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ name: "first_name", type: "varchar" })
-  firstName: string;
+  firstName!: string;
 
   @Column({ name: "last_name", type: "varchar" })
-  lastName: string;
+  lastName!: string;
   @Column({ nullable: true, type: "varchar" })
-  phone: string | null;
+  phone!: string | null;
 
   @OneToOne(() => User, (user) => user.doctors, { eager: true })
   @JoinColumn({ name: "user_id" })
-  user: User;
+  user: User = new User;
 
   @Column({ type: "text", nullable: true })
-  bio: string | null;
+  bio!: string | null;
 
-  @Column({type:"varchar", nullable: true })
-  licenseNumber: string;
+  @Column({ type: "varchar", nullable: true })
+  licenseNumber!: string;
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
-  createdAt: Date;
+  createdAt!: Date;
   
   @ManyToOne(() => Specialization, (specialization) => specialization.doctors, {
     eager: false,
   })
   @JoinColumn({ name: "specialization_id" })
-  specialization: Specialization;
+  specialization!: Specialization
 
   @OneToMany(() => DoctorClinic, (dc) => dc.doctor)
-  doctorClinics: DoctorClinic[];
+  doctorClinics!: DoctorClinic[];
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
-  appointments: Appointment[];
+  appointments!: Appointment[];
 
   @OneToMany(() => DoctorAvailability, (availability) => availability.doctor)
-  availabilities: DoctorAvailability[];
+  availabilities!: DoctorAvailability[];
 }

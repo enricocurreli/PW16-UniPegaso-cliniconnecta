@@ -4,53 +4,53 @@ import { Gender } from "../../enums/db-enum.enum";
 
 export class UserNestedDTO {
   @Expose()
-  id: number;
+  id!: number;
 
   @Expose()
-  email: string;
+  email!: string;
 
   @Expose()
-  role: string;
+  role!: string;
 
   @Expose()
-  createdAt: Date;
+  createdAt!: Date;
 
   @Expose()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @Exclude()
-  password: string;
+  password!: string;
 }
 
 export class DoctorDTO {
   @Expose()
-  id: number;
+  id!: number;
 
   @Expose()
-  firstName: string;
+  firstName!: string;
 
   @Expose()
-  lastName: string;
+  lastName!: string;
 
   @Expose()
-  bio: string;
+  bio!: string;
 
   @Expose()
-  phone: string;
+  phone!: string;
 
   @Expose()
-  licenseNumber: string;
+  licenseNumber!: string;
   
   @Expose()
-  specialization: string;
+  specialization!: string;
 
   @Expose()
-  address: string;
+  address!: string;
 
   @Exclude()
-  createdAt: Date;
+  createdAt!: Date;
 
   @Expose()
   @Type(() => UserNestedDTO)
-  user: UserNestedDTO;
+  user!: UserNestedDTO;
 }

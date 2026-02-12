@@ -99,11 +99,5 @@ export class PrescriptionsService {
     return { message: "Prescription deleted successfully" };
   }
 
-  findAll() {
-    return `This action returns all prescriptions`;
-  }
-
-  update(id: number, updatePrescriptionDto: UpdatePrescriptionDto) {
-    return `This action updates a #${id} prescription`;
-  }
+ 
 }

@@ -6,7 +6,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
-import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Appointment } from "./entities/appointment.entity";
 import { DataSource, Repository } from "typeorm";
@@ -18,6 +17,7 @@ import { AppointmentStatus, DayOfWeek } from "../enums/db-enum.enum";
 import { SlotsService } from "./slots/slots.service";
 import { AvailableSlotsResult } from "./types/available-slots.type";
 import { GetAgendaDto } from "./dto/get-agenda.dto";
+import { Doctor } from "../doctors/entities/doctor.entity";
 
 @Injectable()
 export class AppointmentsService {
@@ -27,6 +27,7 @@ export class AppointmentsService {
     @InjectRepository(DoctorAvailability)
     private availabilityRepo: Repository<DoctorAvailability>,
     @InjectRepository(Patient) private patientRepository: Repository<Patient>,
+    @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
     private readonly slotsService: SlotsService,
     private dataSource: DataSource,
   ) {}
@@ -148,8 +149,8 @@ export class AppointmentsService {
         requestDate < new Date(availability.validFrom)
       ) {
         throw new BadRequestException(
-        "Date prior to the period of validity of the availability",
-      );
+          "Date prior to the period of validity of the availability",
+        );
       }
 
       if (
@@ -157,8 +158,8 @@ export class AppointmentsService {
         requestDate > new Date(availability.validTo)
       ) {
         throw new BadRequestException(
-        "Date after to the period of validity of the availability",
-      );;
+          "Date after to the period of validity of the availability",
+        );
       }
 
       // verifico slot richiesto
@@ -226,10 +227,17 @@ export class AppointmentsService {
       .getMany();
   }
 
-  async getDoctorAgenda(doctorId: number, filters: GetAgendaDto) {
+  async getDoctorAgenda(userId: number, filters: GetAgendaDto) {
+    const doctor = await this.doctorRepository.findOne({
+      where: { user: { id: userId } },
+    });
+    const doctorId = doctor?.id;
     const query = this.appointRepository
       .createQueryBuilder("appointment")
-      .where("appointment.doctor_id = :doctorId", { doctorId });
+      .where("appointment.doctor_id = :doctorId", { doctorId })
+      .leftJoinAndSelect("appointment.patient", "patient")
+      .leftJoinAndSelect("appointment.medicalReport", "medicalReport")
+      .leftJoinAndSelect("appointment.clinic", "clinic")
 
     if (filters.fromDate) {
       query.andWhere("appointment.appointmentDate >= :fromDate", {

@@ -18,12 +18,29 @@ import {
 } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RoleStatus } from '../enums/db-enum.enum';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags("Medici-Cliniche")
 @Controller('doctor-clinics')
 export class DoctorClinicsController {
   constructor(private readonly doctorClinicsService: DoctorClinicsService) {}
 
+ @Public() 
+  @Get('clinic/:doctorId')
+    @ApiOperation({ 
+    summary: 'Ottieni tutte le cliniche di un medico',
+    description: 'Restituisce la lista di tutti le cliniche associate a un medico tramite la tabella pivot DoctorClinic'
+  })
+  @ApiParam({ 
+    name: 'doctorId', 
+    type: Number,
+    description: 'ID del medico',
+    example: 1
+  })
+  async getClinic(@Param('doctorId') doctorId: string) {
+    return this.doctorClinicsService.getClinicsByDoctor(parseInt(doctorId));
+  }
+  @Public()
   @Get('clinic/:clinicId/doctors')
   @ApiOperation({ 
     summary: 'Ottieni tutti i medici di una clinica',

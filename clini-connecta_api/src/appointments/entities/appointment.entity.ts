@@ -17,45 +17,45 @@ import { Patient } from "../../patients/entities/patient.entity";
 @Entity({ name: "APPOINTMENTS" })
 export class Appointment {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
   @Column({ type: "date", name: "appointment_date" })
-  appointmentDate: Date;
+  appointmentDate!: Date;
 
   @Column({ type: "time", name: "appointment_time" })
-  appointmentTime: string;
+  appointmentTime!: string;
 
   @Column({ name: "duration_minutes", type: "int" })
-  durationMinutes: 50;
+  durationMinutes!: 50;
 
   @Column({
     type: "enum",
     enum: AppointmentStatus,
     default: AppointmentStatus.CONFERMATO,
   })
-  status: AppointmentStatus;
+  status!: AppointmentStatus;
 
   @Column({ type: "text", nullable: true })
-  reason: string | null;
+  reason!: string | null;
   
   @Column({ type: "text", nullable: true })
-  notes: string | null;
+  notes!: string | null;
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
-  createdAt: Date;
+  createdAt!: Date;
 
   @ManyToOne(() => Doctor, (doctor) => doctor.appointments, { eager: true, cascade: true })
   @JoinColumn({ name: "doctor_id" })
-  doctor: Doctor;
+  doctor!: Doctor;
 
   @ManyToOne(() => Patient, (patient) => patient.appointments, { eager: true, cascade: true })
   @JoinColumn({ name: "patient_id" })
-  patient: Patient;
+  patient!: Patient;
 
   @ManyToOne(() => Clinic, (clinic) => clinic.appointments, { eager: true, cascade: true })
   @JoinColumn({ name: "clinic_id" })
-  clinic: Clinic;
+  clinic!: Clinic;
   
   @OneToOne(() => MedicalReport, (report) => report.appointment)
-  medicalReport: MedicalReport;
+  medicalReport!: MedicalReport;
   
 }
