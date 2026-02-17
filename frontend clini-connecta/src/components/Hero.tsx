@@ -15,7 +15,7 @@ const Hero = () => {
       {/* Contenuto sopra (non blurrato) */}
       <div className="relative z-10 flex flex-col items-center">
         <div className="flex w-full justify-center">
-          <SearchNav options={["Dottori", "Cliniche", "Specializzazioni"]} />
+          <SearchNav/>
         </div>
 
         <div className="text-center mt-10">

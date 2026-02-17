@@ -132,75 +132,41 @@ export class DoctorsController {
 
   @Public()
   @Get("search")
-  @ApiOperation({
-    summary: "Cerca medici",
-    description: "Cerca medici per nome, cognome, email o specializzazione",
+  @ApiOperation({ 
+    summary: 'Ricerca globale medici',
+    description: 'Cerca medici per nome, cognome, specializzazione o email. Ricerca case-insensitive su tutti i campi.'
   })
-  @ApiQuery({
-    name: "firstName",
-    required: false,
-    description: "Nome del medico",
-    example: "Mario",
+  @ApiQuery({ 
+    name: 'search', 
+    required: true, 
+    description: 'Termine di ricerca (minimo 3 caratteri)',
+    example: 'Cardiologia'
   })
-  @ApiQuery({
-    name: "lastName",
-    required: false,
-    description: "Cognome del medico",
-    example: "Rossi",
-  })
-  @ApiQuery({
-    name: "email",
-    required: false,
-    description: "Email del medico",
-    example: "mario.rossi@doctor.it",
-  })
-  @ApiQuery({
-    name: "specialization",
-    required: false,
-    description: "Specializzazione",
-    example: "Cardiologia",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Lista medici trovati",
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Lista dei medici trovati',
     schema: {
-      example: [
-        {
-          id: 1,
-          firstName: "Mario",
-          lastName: "Rossi",
-          bio: "Cardiologo esperto...",
-          phone: "+393331234567",
-          licenseNumber: "0001234567",
-          user: {
-            id: 1,
-            email: "mario.rossi@doctor.it",
-            role: "DOTTORE",
-          },
-          specialization: {
-            id: 1,
-            name: "Cardiologia",
-          },
-        },
-      ],
-    },
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number', example: 1 },
+          firstName: { type: 'string', example: 'Mario' },
+          lastName: { type: 'string', example: 'Rossi' },
+          specialization: { type: 'string', example: 'Cardiologia', nullable: true },
+          email: { type: 'string', example: 'mario.rossi@example.com', nullable: true },
+          phone: { type: 'string', example: '+39 333 1234567' },
+          licenseNumber: { type: 'string', example: 'OMCeO-123456' }
+        }
+      }
+    }
   })
   @ApiResponse({
     status: 404,
     description: "Nessun medico trovato",
   })
-  searchDottors(
-    @Query("firstName") firstName?: string,
-    @Query("lastName") lastName?: string,
-    @Query("email") email?: string,
-    @Query("specialization") specialization?: string
-  ) {
-    return this.doctorsService.findbyQuery(
-      firstName,
-      lastName,
-      email,
-      specialization
-    );
+   async searchDoctors(@Query('search') search: string) {
+    return this.doctorsService.searchGlobal(search);
   }
   //!---------------------------------
 

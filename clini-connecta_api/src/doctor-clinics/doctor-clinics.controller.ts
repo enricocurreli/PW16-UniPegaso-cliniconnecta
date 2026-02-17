@@ -76,8 +76,8 @@ export class DoctorClinicsController {
   @ApiNotFoundResponse({ 
     description: 'Clinica non trovata' 
   })
-  async getDoctors(@Param('clinicId', ParseIntPipe) clinicId: number) {
-    return this.doctorClinicsService.getDoctorsByClinic(clinicId);
+  async getDoctors(@Param('clinicId') clinicId: string) {
+    return this.doctorClinicsService.getDoctorsByClinic(parseInt(clinicId));
   }
 
   @Roles(RoleStatus.ADMIN)

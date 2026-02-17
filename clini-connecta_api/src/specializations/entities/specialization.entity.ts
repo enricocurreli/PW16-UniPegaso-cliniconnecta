@@ -16,7 +16,7 @@ export class Specialization {
   name!: string;
 
   @OneToMany(() => Doctor, (doctor) => doctor.specialization, {
-    eager: true,
+    eager: false,
   })
   doctors!: Doctor[];
 }

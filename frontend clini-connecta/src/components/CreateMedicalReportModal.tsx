@@ -1,11 +1,10 @@
 import api from "@/api/axiosConfig";
 import { useAuth } from "@/context/AuthContext";
-import type { Prescription } from "@/interfaces/prescriptions";
-import { useActionState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import type { MedicalReport } from "@/interfaces/medicalReport";
+import { useActionState, useState } from "react";
 
-interface CreatePrescriptionModalProps {
-  reportId: number;
+interface CreateMedicalReportModalProps {
+  appointmentId: number;
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
@@ -14,31 +13,29 @@ interface CreatePrescriptionModalProps {
 interface FormState {
   error?: string;
   success?: boolean;
-  data?: Prescription;
+  data?: MedicalReport;
 }
 
-const CreatePrescriptionModal = ({
-  reportId,
+const CreateMedicalReportModal = ({
+  appointmentId,
   isOpen,
   onClose,
   onSuccess,
-}: CreatePrescriptionModalProps) => {
+}: CreateMedicalReportModalProps) => {
   const initialState: FormState = {};
   const { token } = useAuth();
-  const queryClient = useQueryClient();
-  const createPrescriptionAction = async (
+  const [reason, setReason] = useState<string>();
+  const CreateMedicalReportAction = async (
     prevState: FormState,
     formData: FormData,
   ): Promise<FormState> => {
     try {
-      const medicationName = formData.get("medicationName") as string;
-      const dosage = formData.get("dosage") as string;
-      const frequency = formData.get("frequency") as string;
-      const startDate = formData.get("startDate") as string;
-      const endDate = formData.get("endDate") as string;
-      const file = formData.get("file") as File;
+      const reportType = formData.get("reportType") as string;
+      const title = formData.get("title") as string;
+      const diagnosis = formData.get("diagnosis") as string;
+      const treatment = formData.get("treatment") as string;
 
-      if (!medicationName || !dosage || !frequency || !startDate || !endDate) {
+      if (!reportType || !title || !diagnosis || !treatment) {
         return {
           error: "Tutti i campi obbligatori devono essere compilati",
           success: false,
@@ -46,18 +43,13 @@ const CreatePrescriptionModal = ({
       }
 
       const uploadFormData = new FormData();
-      uploadFormData.append("medicationName", medicationName);
-      uploadFormData.append("dosage", dosage);
-      uploadFormData.append("frequency", frequency);
-      uploadFormData.append("startDate", startDate);
-      uploadFormData.append("endDate", endDate);
-
-      if (file && file.size > 0) {
-        uploadFormData.append("file", file);
-      }
+      uploadFormData.append("reportType", reportType);
+      uploadFormData.append("title", title);
+      uploadFormData.append("diagnosis", diagnosis);
+      uploadFormData.append("treatment", treatment);
 
       const response = await api.post(
-        `/prescriptions/upload/${reportId}`,
+        `http://localhost:3000/prescriptions/upload/${appointmentId}`,
         uploadFormData,
         {
           headers: {
@@ -66,19 +58,13 @@ const CreatePrescriptionModal = ({
         },
       );
 
-      await queryClient.refetchQueries({
-        queryKey: [`/prescriptions/${response.data.id}`],
-        exact: false,
-      });
-
-
       if (onSuccess) {
         onSuccess();
       }
 
       setTimeout(() => {
         onClose();
-      }, 2000);
+      }, 1500);
 
       return {
         success: true,
@@ -93,7 +79,7 @@ const CreatePrescriptionModal = ({
   };
 
   const [state, formAction, isPending] = useActionState(
-    createPrescriptionAction,
+    CreateMedicalReportAction,
     initialState,
   );
 
@@ -103,7 +89,7 @@ const CreatePrescriptionModal = ({
     <div className="modal modal-open">
       <div className="modal-box max-w-2xl">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-lg">Crea Prescrizione</h3>
+          <h3 className="font-bold text-lg">Crea Referto</h3>
           <button
             onClick={onClose}
             className="btn btn-sm btn-circle btn-ghost"
@@ -114,7 +100,7 @@ const CreatePrescriptionModal = ({
         </div>
 
         <p className="text-sm text-base-content/70 mb-4">
-          Referto ID: {reportId}
+          Appuntamento ID: {appointmentId}
         </p>
 
         {state.error && (
@@ -151,103 +137,75 @@ const CreatePrescriptionModal = ({
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span>Prescrizione creata con successo! ID: {state.data?.id}</span>
+            <span>Referto creato con successo! ID: {state.data?.id}</span>
           </div>
         )}
 
         <form action={formAction} className="space-y-4">
-          {/* Medication Name */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Nome Farmaco *</span>
+              <span className="label-text font-semibold mt-3">
+                Tipo di visita
+              </span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={reason || ""}
+              onChange={(e) => setReason(e.target.value)}
+              required
+              disabled={isPending}
+            >
+              <option value="" disabled>
+                Scegli un motivo
+              </option>
+              <option>PRIMA VISITA</option>
+              <option>VISITA DI CONTROLLO</option>
+            </select>
+          </div>
+
+          {/* title */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Titolo*</span>
             </label>
             <input
               type="text"
-              name="medicationName"
-              placeholder="Es: Amoxicillina"
+              name="title"
+              placeholder="Es: Visita Cardiologica - Valutazione Iniziale"
               className="input input-bordered w-full"
               required
               disabled={isPending}
             />
           </div>
 
-          {/* Dosage */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Dosaggio *</span>
-            </label>
-            <input
-              type="text"
-              name="dosage"
-              placeholder="Es: 500mg"
-              className="input input-bordered w-full"
-              required
-              disabled={isPending}
-            />
-          </div>
-
-          {/* Frequency */}
+          {/* diagnosis */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Frequenza *</span>
             </label>
             <input
               type="text"
-              name="frequency"
-              placeholder="Es: 3 volte al giorno"
+              name="diagnosis"
+              placeholder="Es: Paziente presenta parametri cardiovascolari nella norma..."
               className="input input-bordered w-full"
               required
               disabled={isPending}
             />
-          </div>
-
-          {/* Date Range - Side by side */}
-          <div className="grid grid-cols-2 gap-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Data Inizio *</span>
+                <span className="label-text">Trattamento *</span>
               </label>
               <input
                 type="date"
-                name="startDate"
+                name="treatment"
                 className="input input-bordered w-full"
                 required
                 disabled={isPending}
-              />
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Data Fine *</span>
-              </label>
-              <input
-                type="date"
-                name="endDate"
-                className="input input-bordered w-full"
-                required
-                disabled={isPending}
+                placeholder="Es: Nessuna terapia farmacologica necessaria al momento..."
               />
             </div>
           </div>
 
-          {/* File Upload */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Certificato PDF (opzionale)</span>
-            </label>
-            <input
-              type="file"
-              name="file"
-              accept=".pdf"
-              className="file-input file-input-bordered w-full"
-              disabled={isPending}
-            />
-            <label className="label">
-              <span className="label-text-alt">Formato supportato: PDF</span>
-            </label>
-          </div>
-
-          {/* Modal Actions */}
           <div className="modal-action">
             <button
               type="button"
@@ -268,7 +226,7 @@ const CreatePrescriptionModal = ({
                   Creazione...
                 </>
               ) : (
-                "Crea Prescrizione"
+                "Crea Referto"
               )}
             </button>
           </div>
@@ -281,4 +239,4 @@ const CreatePrescriptionModal = ({
   );
 };
 
-export default CreatePrescriptionModal;
+export default CreateMedicalReportModal;

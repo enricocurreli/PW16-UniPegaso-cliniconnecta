@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import Button from "./Button";
 
 export function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -54,11 +54,13 @@ export function Navbar() {
                       Profilo
                     </Link>
                   </li>
-                  <li>
-                    <Link className="md:text-xl" to="/">
-                      Dashboard
-                    </Link>
-                  </li>
+                  {user?.role === "ADMIN" && (
+                    <li>
+                      <Link className="md:text-xl" to="/">
+                        Dashboard
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <Link className="md:text-xl" to="/my-appointments">
                       Appuntamenti
@@ -109,11 +111,13 @@ export function Navbar() {
                   Profilo
                 </Link>
               </li>
-              <li>
-                <Link className="md:text-xl" to="/">
-                  Dashboard
-                </Link>
-              </li>
+              {user?.role === "ADMIN" && (
+                <li>
+                  <Link className="md:text-xl" to="/">
+                    Dashboard
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link className="md:text-xl" to="/appointments">
                   Appuntamenti

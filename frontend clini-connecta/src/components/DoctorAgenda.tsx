@@ -1,23 +1,35 @@
 import type { Appointment } from "@/interfaces/appointment";
 import { useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
+import { useGet } from "@/hooks/useGet";
 import Prescriptions from "./Prescriptions";
-import CreateMedicalReportForm from "./CreateMedicalReportForm";
 import CreatePrescriptionModal from "./CreatePrescriptionModal";
 import Button from "./Button";
+import MedicalReportModal from "./CreateMedicalReportModal";
 
 const DoctorAgenda = () => {
-  const { token } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenReport, setIsModalOpenReport] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [selectedMedicalReport, setSelectedMedicalReport] = useState<
+    number | null
+  >(null);
 
   const fromDate = searchParams.get("fromDate") || "";
   const toDate = searchParams.get("toDate") || "";
   const status = searchParams.get("status") || "";
+
+  const params: Record<string, string> = {};
+  if (fromDate) params.fromDate = fromDate;
+  if (toDate) params.toDate = toDate;
+  if (status) params.status = status;
+
+  const {
+    data: appointments = [],
+    isLoading: loading,
+    refetch,
+  } = useGet<Appointment[]>("/appointments/doctor-appointments", { params });
 
   const updateSearchParam = (key: string, value: string) => {
     const next = new URLSearchParams(searchParams);
@@ -29,36 +41,6 @@ const DoctorAgenda = () => {
     setSearchParams(next);
   };
 
-  // Funzione per fetchare l'agenda (estratta per riutilizzarla)
-  const fetchAgenda = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (fromDate) params.set("fromDate", fromDate);
-      if (toDate) params.set("toDate", toDate);
-      if (status) params.set("status", status);
-
-      const res = await fetch(
-        `http://localhost:3000/appointments/doctor-appointments?` +
-          params.toString(),
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
-          },
-        },
-      );
-      const data: Appointment[] = await res.json();
-      setAppointments(data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAgenda();
-  }, [fromDate, toDate, status, token]);
-
   const handleOpenModal = (reportId: number) => {
     setSelectedReportId(reportId);
     setIsModalOpen(true);
@@ -66,16 +48,25 @@ const DoctorAgenda = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedReportId(null);
+    setSelectedMedicalReport(null);
   };
 
-  // Handler per il successo della creazione prescrizione
+  const handleOpenModalMedicalReport = (apptId: number) => {
+    setSelectedMedicalReport(apptId);
+    setIsModalOpenReport(true);
+  };
+
+  const handleCloseModalMedicalReport = () => {
+    setIsModalOpenReport(false);
+    setSelectedMedicalReport(null);
+  };
+
   const handlePrescriptionSuccess = () => {
-    fetchAgenda(); // Ricarica tutti gli appuntamenti
+    refetch();
   };
 
   return (
-    <div className="px-6 space-y-10">
+    <div className="px-6 space-y-10 min-h-screen">
       <h1 className="text-2xl font-semibold">Agenda Dottore</h1>
 
       {/* FILTRI (URLSearchParams) */}
@@ -129,12 +120,12 @@ const DoctorAgenda = () => {
                 <p className="font-semibold">
                   {appt.reason} — {appt.status}
                 </p>
-                <p className="text-sm ">
-                  {appt.appointmentDate} alle {appt.appointmentTime} ·{" "}
-                  {appt.durationMinutes} minuti
+                <p className="text-sm">
+                  {appt.appointmentDate.split("T")[0]} alle{" "}
+                  {appt.appointmentTime} · {appt.durationMinutes} minuti
                 </p>
               </div>
-              <div className="text-right text-sm ">
+              <div className="text-right text-sm">
                 <p>{appt.clinic.name}</p>
                 <p>
                   {appt.clinic.address}, {appt.clinic.city} (
@@ -162,60 +153,51 @@ const DoctorAgenda = () => {
               {appt.medicalReport ? (
                 <div>
                   <p className="font-medium">Referto esistente</p>
-                  {/* mostra i dettagli del referto qui */}
                   <p>ID referto: {appt.medicalReport.id}</p>
-                  {appt.medicalReport && (
-                    <>
-                      <div className="divider my-2" />
-                      <p className="font-semibold">Referto:</p>
-                      <p>{appt.medicalReport.title}</p>
-                      <p>Diagnosi: {appt.medicalReport.diagnosis}</p>
-                      <p>
-                        Trattamento:{" "}
-                        {appt.medicalReport.treatment ??
-                          "Nessun trattamento indicato"}
-                      </p>
-                      <div className="divider my-2" />
-                      {/* Prescrizioni solo se esiste un referto */}
-                      <Prescriptions id={appt.medicalReport.id} />
 
-                      {!appt.medicalReport ? (
-                        <div className="border border-dashed rounded p-3 text-xs ">
-                          <CreateMedicalReportForm appointmentId={appt.id} />
-                        </div>
-                      ) : (
-                        ""
-                      )}
-                      <div className="flex justify-center p-4">
-                        {appt.medicalReport ? (
-                          <Button
-                            onClick={() =>
-                              handleOpenModal(appt.medicalReport!.id)
-                            }
-                            classes="btn btn-primary"
-                          >
-                            Crea Prescrizione
-                          </Button>
-                        ) : (
-                          " "
-                        )}
-                      </div>
-                      {selectedReportId && (
-                        <CreatePrescriptionModal
-                          reportId={selectedReportId}
-                          isOpen={isModalOpen}
-                          onClose={handleCloseModal}
-                          onSuccess={handlePrescriptionSuccess} // AGGIUNGI QUESTO
-                        />
-                      )}
-                    </>
-                  )}
+                  <div className="divider my-2" />
+                  <p className="font-semibold">Referto:</p>
+                  <p>{appt.medicalReport.title}</p>
+                  <p>Diagnosi: {appt.medicalReport.diagnosis}</p>
+                  <p>
+                    Trattamento:{" "}
+                    {appt.medicalReport.treatment ??
+                      "Nessun trattamento indicato"}
+                  </p>
+
+                  <div className="divider my-2" />
+
+                  {/* Prescrizioni */}
+                  <Prescriptions id={appt.medicalReport.id} />
+
+                  {/* Bottone Crea Prescrizione */}
+
+                  <div className="flex justify-center p-4">
+                    <Button
+                      onClick={() => handleOpenModal(appt.medicalReport!.id)}
+                      classes="btn btn-primary"
+                    >
+                      Crea Prescrizione
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div>
                   <p className="font-medium mb-2">
                     Nessun referto presente per questo appuntamento
                   </p>
+
+                  {/* Bottone Crea Referto */}
+                  {appt.status != "CANCELLATO" && (
+                    <div className="flex justify-center p-4">
+                      <Button
+                        onClick={() => handleOpenModalMedicalReport(appt.id)}
+                        classes="btn btn-primary"
+                      >
+                        Crea Referto
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -236,6 +218,25 @@ const DoctorAgenda = () => {
           </p>
         )}
       </div>
+
+      {/* MODALS */}
+      {selectedReportId && (
+        <CreatePrescriptionModal
+          reportId={selectedReportId}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSuccess={handlePrescriptionSuccess}
+        />
+      )}
+
+      {selectedMedicalReport && (
+        <MedicalReportModal
+          appointmentId={selectedMedicalReport}
+          isOpen={isModalOpenReport}
+          onClose={handleCloseModalMedicalReport}
+          onSuccess={handlePrescriptionSuccess}
+        />
+      )}
     </div>
   );
 };

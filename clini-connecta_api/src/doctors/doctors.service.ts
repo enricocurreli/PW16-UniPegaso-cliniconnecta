@@ -67,7 +67,42 @@ export class DoctorsService {
     return doctor;
   }
 
-  // Pazienti
+
+async searchGlobal(searchTerm: string) {
+  if (!searchTerm || searchTerm.length < 3) {
+    return [];
+  }
+
+  const doctors = await this.doctorRepository
+    .createQueryBuilder('doctor')
+    .leftJoinAndSelect('doctor.user', 'user')
+    .leftJoinAndSelect('doctor.specialization', 'specialization')
+    .where('LOWER(doctor.firstName) LIKE LOWER(:search)', {
+      search: `%${searchTerm}%`,
+    })
+    .orWhere('LOWER(doctor.lastName) LIKE LOWER(:search)', {
+      search: `%${searchTerm}%`,
+    })
+    .orWhere('LOWER(specialization.name) LIKE LOWER(:search)', {
+      search: `%${searchTerm}%`,
+    })
+    .orWhere('LOWER(user.email) LIKE LOWER(:search)', {
+      search: `%${searchTerm}%`,
+    })
+    .take(10)
+    .getMany();
+
+  return doctors.map(doctor => ({
+    id: doctor.id,
+    firstName: doctor.firstName,
+    lastName: doctor.lastName,
+    bio: doctor.bio,
+    phone: doctor.phone,
+    licenseNumber: doctor.licenseNumber,
+    specialization: doctor.specialization?.name || null,
+    email: doctor.user?.email || null,
+  }));
+}
 
   async findbyQuery(
     firstName?: string,

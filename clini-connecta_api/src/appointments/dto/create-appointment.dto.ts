@@ -23,7 +23,7 @@ export class CreateAppointmentDto {
   })
   @IsDateString()
   @IsNotEmpty()
-  appointmentDate: string;
+  appointmentDate!: string;
 
   @ApiProperty({
     description: "Orario dell'appuntamento (formato HH:MM)",
@@ -35,7 +35,7 @@ export class CreateAppointmentDto {
   @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
     message: "appointmentTime deve essere nel formato HH:MM (es. 14:30)",
   })
-  appointmentTime: string;
+  appointmentTime!: string;
 
   @ApiPropertyOptional({
     description: "Stato dell'appuntamento",
@@ -77,7 +77,7 @@ export class CreateAppointmentDto {
   @IsInt()
   @IsNotEmpty()
   @Type(() => Number)
-  doctorId: number;
+  doctorId!: number;
 
   // @ApiProperty({
   //   description: "ID del paziente",
@@ -97,5 +97,5 @@ export class CreateAppointmentDto {
   @IsInt()
   @IsNotEmpty()
   @Type(() => Number)
-  clinicId: number;
+  clinicId!: number;
 }

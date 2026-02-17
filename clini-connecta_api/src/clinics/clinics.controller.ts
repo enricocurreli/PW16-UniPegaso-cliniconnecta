@@ -75,7 +75,7 @@ export class ClinicsController {
   }
 
   @Roles(RoleStatus.ADMIN)
-  @Post('create')
+  @Post("create")
   @ApiOperation({
     summary: "Crea una nuova clinica",
     description:
@@ -106,64 +106,41 @@ export class ClinicsController {
   }
   @Public()
   @Get("search-clinics")
-  @ApiOperation({
-    summary: "Cerca cliniche",
-    description: "Cerca cliniche per nome, città, o indirizzo",
+   @ApiOperation({ 
+    summary: 'Ricerca globale cliniche',
+    description: 'Cerca cliniche per nome, città o indirizzo. Ricerca case-insensitive su tutti i campi.'
   })
-  @ApiQuery({
-    name: "name",
-    required: false,
-    description: "Nome della clinica",
-    example: "Clinica le Rose",
+  @ApiQuery({ 
+    name: 'search', 
+    required: true, 
+    description: 'Termine di ricerca (minimo 3 caratteri)',
+    example: 'Milano'
   })
-  @ApiQuery({
-    name: "city",
-    required: false,
-    example: "Roma",
-    description: "Città della clinica",
-  })
-  @ApiQuery({
-    name: "address",
-    required: false,
-    example: "Via delle cliniche 29",
-    description: "Indirizzo della clinica",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Lista cliniche trovate",
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Lista delle cliniche trovate',
     schema: {
-      example: [
-        {
-          id: 1,
-          name: "Centro le Rose",
-          address: "Via delle cliniche 29",
-          city: "Roma",
-          postalCode: "00165",
-          phone: "+39 06 87654321",
-          createdAt: "2026-01-11T22:54:54.221Z",
-        },
-        {
-          id: 2,
-          name: "Poliambulatorio Colosseo",
-          address: "Via dei Fori Imperiali 789",
-          city: "Roma",
-          postalCode: "00186",
-          phone: "+39 06 55512233",
-          createdAt: "2026-01-11T22:55:34.497Z",
-        },
-      ],
-    },
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number', example: 1 },
+          name: { type: 'string', example: 'Clinica San Carlo' },
+          address: { type: 'string', example: 'Via Roma, 123' },
+          city: { type: 'string', example: 'Milano' },
+          postalCode: { type: 'string', example: '20100' },
+          phone: { type: 'string', example: '+39 02 1234567' }
+        }
+      }
+    }
   })
+  @ApiResponse({ status: 401, description: 'Non autorizzato' })
   @ApiResponse({
     status: 404,
     description: "Nessuna clinica trovata",
   })
-  searchClinic(
-    @Query("name") name?: string,
-    @Query("city") city?: string,
-    @Query("address") address?: string
-  ) {
-    return this.clinicsService.findClinicbyQuery(name, city, address);
+  searchClinic(@Query("search") search: string) {
+    return this.clinicsService.searchGlobal(search);
   }
   @Public()
   @Get(":id")

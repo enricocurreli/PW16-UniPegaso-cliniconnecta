@@ -11,6 +11,8 @@ import Signup from "@/pages/Signup";
 import CompleteProfile from "@/pages/CompleteProfile";
 import Appointment from "@/pages/Appointment";
 import Profile from "@/pages/Profile";
+import ClinicDetail from "@/pages/ClinicDetail";
+
 
 const router = createBrowserRouter([
   {
@@ -48,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: routes.profile,
         element: <Profile />,
+      },
+      {
+        path: routes.clinic,
+        element: <ClinicDetail />,
       },
     ],
   },

@@ -5,6 +5,7 @@ export const routes = {
     login: '/login',
     register: '/register',
     completeProfile:'/complete-profile',
-    appointments: 'my-appointments',
-    profile: 'profile'
+    appointments: '/my-appointments',
+    profile: '/profile',
+    clinic: '/clinic/:clinicId'
 }

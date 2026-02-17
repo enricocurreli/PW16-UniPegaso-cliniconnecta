@@ -16,9 +16,27 @@ export interface Doctor {
   phone: string;
   licenseNumber: string;
   specialization: {
-    id:number,
-    name:string
+    id: number;
+    name: string;
   };
   user: UserNested;
-  availabilities: DoctorAvailabilityInterface[]
+  availabilities: DoctorAvailabilityInterface[];
+}
+
+export interface DoctorClinics {
+  id: number;
+  doctor: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    bio: string;
+    licenseNumber: string;
+    createdAt: string;
+    specialization: {
+      id: number;
+      name: string;
+    };
+    user: UserNested;
+  };
 }

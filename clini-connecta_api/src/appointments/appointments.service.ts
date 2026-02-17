@@ -181,7 +181,7 @@ export class AppointmentsService {
         notes: createAppointmentDto.notes,
         doctor: { id: createAppointmentDto.doctorId },
         clinic: { id: createAppointmentDto.clinicId },
-        patient: patient,
+        patient: { id: patient.id },
       });
 
       const saved = await queryRunner.manager.save(newAppointment);

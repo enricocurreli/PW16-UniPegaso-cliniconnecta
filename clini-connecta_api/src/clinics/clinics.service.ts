@@ -12,7 +12,7 @@ import { Repository } from "typeorm";
 @Injectable()
 export class ClinicsService {
   constructor(
-    @InjectRepository(Clinic) private clinicRepository: Repository<Clinic>
+    @InjectRepository(Clinic) private clinicRepository: Repository<Clinic>,
   ) {}
 
   async create(createClinic: CreateClinicDto) {
@@ -30,7 +30,7 @@ export class ClinicsService {
   async findAll() {
     return await this.clinicRepository.find({
       order: { name: "ASC" },
-      relations:['doctorClinics.doctor']
+      relations: ["doctorClinics.doctor"],
     });
   }
 
@@ -44,16 +44,31 @@ export class ClinicsService {
     return clinic;
   }
 
+  async searchGlobal(searchTerm: string) {
+    if (!searchTerm || searchTerm.length < 3) {
+      return [];
+    }
 
-  async findClinicbyQuery(
-    name?: string,
-    city?: string,
-    address?: string,
-    
-  ) {
+    return await this.clinicRepository
+      .createQueryBuilder("clinic")
+      .where("LOWER(clinic.name) LIKE LOWER(:search)", {
+        search: `%${searchTerm}%`,
+      })
+      .orWhere("LOWER(clinic.city) LIKE LOWER(:search)", {
+        search: `%${searchTerm}%`,
+      })
+      .orWhere("LOWER(clinic.address) LIKE LOWER(:search)", {
+        search: `%${searchTerm}%`,
+      })
+      .take(10)
+      .getMany();
+  }
+
+  
+  async findClinicbyQuery(name?: string, city?: string, address?: string) {
     const queryBuilder = this.clinicRepository
       .createQueryBuilder("clinics")
-      .select("clinics")
+      .select("clinics");
 
     // `%${field}%` case-insensitive che permette di trovare nomi anche con ricerche parziali
     if (name) {
@@ -74,22 +89,19 @@ export class ClinicsService {
       });
     }
 
-
-
     const clinics = await queryBuilder.getMany();
 
     if (!clinics || clinics.length === 0) {
       throw new NotFoundException(
-        "No clinics found with the specified criteria"
+        "No clinics found with the specified criteria",
       );
     }
 
     return clinics;
-  };
-
+  }
 
   async update(id: number, updateClinic: UpdateClinicDto) {
-    const clinic =  await this.clinicRepository.findOne({
+    const clinic = await this.clinicRepository.findOne({
       where: { id },
     });
     if (!clinic) {
@@ -98,12 +110,11 @@ export class ClinicsService {
 
     const updates = Object.fromEntries(
       Object.entries(updateClinic).filter(
-        ([_,v])=>v !== undefined && v != null
-      )
+        ([_, v]) => v !== undefined && v != null,
+      ),
     );
-    Object.assign(updateClinic,updates);
+    Object.assign(updateClinic, updates);
     return await this.clinicRepository.save(clinic);
-
   }
 
   async remove(id: number) {

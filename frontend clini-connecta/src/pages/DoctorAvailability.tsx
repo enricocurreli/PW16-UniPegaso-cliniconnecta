@@ -1,20 +1,21 @@
 import { useGet } from "@/hooks/useGet";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMemo, useState } from "react";
 import type { Slot } from "@/interfaces/slot";
 import type { DoctorClinic } from "@/interfaces/clinic";
+import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
 
 const DoctorAvailability = () => {
   const { doctorId } = useParams();
-
-  // Stati
+  const { token } = useAuth();
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
   const [selectedClinic, setSelectedClinic] = useState<number | null>(null);
   const [notes, setNotes] = useState<string | null>(null);
   const [reason, setReason] = useState<string>();
-
+  const navigate = useNavigate();
   //  cliniche dove lavora il dottore
   const {
     data: doctorClinics,
@@ -42,31 +43,73 @@ const DoctorAvailability = () => {
     enabled: !!doctorId && !!selectedClinic && !!selectedDate,
   });
 
-  // Gestione prenotazione
-  const handleBooking = (slot: { time: string; endTime: string }) => {
-    const confirmed = window.confirm(
-      `Confermi la prenotazione?\n\n` +
-        `Data: ${new Date(selectedDate).toLocaleDateString("it-IT")}\n` +
-        `Orario: ${slot.time} - ${slot.endTime}\n` +
-        `Clinica: ${clinics?.find((c) => c.id === selectedClinic)?.name}`,
-    );
-
-    if (confirmed) {
-      // TODO: Chiamata API per salvare l'appuntamento
-      console.log("Prenotazione confermata:", {
-        doctorId,
-        clinicId: selectedClinic,
-        date: selectedDate,
-        time: slot.time,
-        notes: notes,
-        reason:reason
-      });
-
-      //POST -> "appointments/create"
-      // Esempio: navigate alla pagina di conferma
-      // navigate('/appointments/confirm', { state: { ... } });
+  const createAppointment = async (appointmentData: object) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/appointments/create",
+        appointmentData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
     }
   };
+
+const handleBooking = async (slot: { time: string; endTime: string }) => {
+  const confirmed = window.confirm(
+    `Confermi la prenotazione?\n\n` +
+      `Data: ${new Date(selectedDate).toLocaleDateString("it-IT")}\n` +
+      `Orario: ${slot.time} - ${slot.endTime}\n` +
+      `Clinica: ${clinics?.find((c) => c.id === selectedClinic)?.name}`,
+  );
+
+  if (!confirmed) return; 
+
+  let doctor_ID = 0;
+  if (doctorId) {
+    doctor_ID = parseInt(doctorId);
+  }
+
+
+  const appointmentData = {
+    doctorId: doctor_ID,
+    clinicId: selectedClinic,
+    appointmentDate: selectedDate,
+    appointmentTime: slot.time,
+    notes: notes || '', 
+    reason: reason || '', 
+  };
+
+
+  try {
+    const result = await createAppointment(appointmentData);
+    console.log('Risultato:', result);
+    
+    alert('Appuntamento prenotato con successo!');
+    
+    navigate('/my-appointments', {
+      state: {
+        appointment: result,
+        message: 'Prenotazione completata con successo!',
+      },
+    });
+  } catch (error) {
+    console.error('Errore completo:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Response data:', error.response?.data);
+      console.error('Response status:', error.response?.status);
+      alert(`Errore: ${error.response?.data?.message || 'Errore nella prenotazione'}`);
+    } else {
+      alert('Errore nella prenotazione. Riprova.');
+    }
+  }
+};
 
   // Loading iniziale
   if (loadingClinics) {
@@ -123,7 +166,7 @@ const DoctorAvailability = () => {
             className="select select-bordered w-full"
             value={reason || ""}
             onChange={(e) => setReason(e.target.value)}
-             disabled={!selectedClinic}
+            disabled={!selectedClinic}
           >
             <option value="" disabled>
               Scegli un motivo
@@ -132,9 +175,7 @@ const DoctorAvailability = () => {
             <option>VISITA DI CONTROLLO</option>
           </select>
           <label className="label">
-            <span className="label-text font-semibold mt-3">
-              Note
-            </span>
+            <span className="label-text font-semibold mt-3">Note</span>
           </label>
           <input
             type="text"

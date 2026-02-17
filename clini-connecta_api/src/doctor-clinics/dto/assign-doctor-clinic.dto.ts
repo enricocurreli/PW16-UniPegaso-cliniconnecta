@@ -5,10 +5,10 @@ export class AssignDoctorClinicDto {
   @IsInt()
   @IsPositive()
   @Type(() => Number)
-  doctorId: number;
+  doctorId!: number;
 
   @IsInt()
   @IsPositive()
   @Type(() => Number)
-  clinicId: number;
+  clinicId!: number;
 }

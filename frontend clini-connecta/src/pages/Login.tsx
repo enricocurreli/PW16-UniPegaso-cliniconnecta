@@ -9,7 +9,7 @@ interface LoginFormState {
 }
 
 function Login() {
-  const { login, token, user } = useAuth();
+  const { login} = useAuth();
   const navigate = useNavigate();
     
   const loginAction = async (

@@ -1,17 +1,29 @@
-import { useAuth } from "@/context/AuthContext";
 import { useActionState } from "react";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
+import api from "@/api/axiosConfig";
+import { useGet } from "@/hooks/useGet";
 
 interface UpdateFormState {
   error?: string;
   success?: boolean;
 }
 
+interface PatientData {
+  gender: string;
+  dateOfBirth: string;
+  cityOfBirth: string;
+  provinceOfBirth: string;
+  phone: string;
+  address: string;
+}
+
 export function PatientProfileForm() {
-  const { token } = useAuth();
   const navigate = useNavigate();
-  console.log(token);
+  
+  // Carica i dati attuali del paziente
+  const { data: patientData } = useGet<PatientData>(`/patients/account`);
+  
   const updateAction = async (
     prevState: UpdateFormState,
     formData: FormData,
@@ -22,44 +34,30 @@ export function PatientProfileForm() {
     const provinceOfBirth = formData.get("provinceOfBirth") as string;
     const phone = formData.get("phone") as string;
     const address = formData.get("address") as string;
+    
     try {
-      const res = await fetch("http://localhost:3000/patients/account/update", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          gender,
-          dateOfBirth,
-          cityOfBirth,
-          provinceOfBirth,
-          phone,
-          address,
-        }),
+      await api.patch("/patients/account/update", {
+        gender,
+        dateOfBirth,
+        cityOfBirth,
+        provinceOfBirth,
+        phone,
+        address,
       });
-
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        const msg =
-          data?.message || data?.error || "Errore durante la modifica dei dati";
-
-        return { error: msg, success: false };
-      }
 
       navigate("/");
       return { success: true };
-    } catch (error) {
-      return {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Errore durante la modifica dei dati",
-        success: false,
-      };
+    } catch (error: any) {
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Errore durante la modifica dei dati";
+
+      return { error: msg, success: false };
     }
   };
+  
   const [state, formAction, isPending] = useActionState(updateAction, {});
 
   return (
@@ -71,6 +69,7 @@ export function PatientProfileForm() {
         <select
           name="gender"
           disabled={isPending}
+          defaultValue={patientData?.gender || ""}
           className="select select-bordered w-full"
         >
           <option value="">-</option>
@@ -87,6 +86,7 @@ export function PatientProfileForm() {
           type="date"
           name="dateOfBirth"
           disabled={isPending}
+          defaultValue={patientData?.dateOfBirth ? new Date(patientData.dateOfBirth).toISOString().split('T')[0] : ""}
           placeholder="YYYY-MM-DD"
           className="input input-bordered w-full"
         />
@@ -100,6 +100,7 @@ export function PatientProfileForm() {
           type="text"
           name="cityOfBirth"
           disabled={isPending}
+          defaultValue={patientData?.cityOfBirth || ""}
           placeholder="Città di nascita"
           className="input input-bordered w-full"
         />
@@ -113,6 +114,7 @@ export function PatientProfileForm() {
           type="text"
           name="provinceOfBirth"
           disabled={isPending}
+          defaultValue={patientData?.provinceOfBirth || ""}
           placeholder="Provincia di nascita"
           className="input input-bordered w-full"
         />
@@ -126,6 +128,7 @@ export function PatientProfileForm() {
           type="tel"
           name="phone"
           disabled={isPending}
+          defaultValue={patientData?.phone || ""}
           placeholder="+39 333 1234567"
           className="input input-bordered w-full"
         />
@@ -139,10 +142,12 @@ export function PatientProfileForm() {
           type="text"
           name="address"
           disabled={isPending}
+          defaultValue={patientData?.address || ""}
           placeholder="Via Roma 1, Milano"
           className="input input-bordered w-full"
         />
       </div>
+      
       {state.error && (
         <div className="alert alert-error">
           <span>{state.error}</span>
@@ -154,9 +159,10 @@ export function PatientProfileForm() {
           <span>Modifica completata!</span>
         </div>
       )}
+      
       <Button
         type="submit"
-        classes="px-4 py-2 rounded bg-primary  hover:bg-blue-700"
+        classes="px-4 py-2 rounded bg-primary hover:bg-blue-700"
       >
         {isPending ? "Caricamento..." : "Salva"}
       </Button>

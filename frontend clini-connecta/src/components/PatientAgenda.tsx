@@ -1,11 +1,51 @@
 import { useGet } from "@/hooks/useGet";
 import type { Appointment } from "@/interfaces/appointment";
 import Prescriptions from "./Prescriptions";
+import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
+import Button from "./Button";
 
 const PatientAgenda = () => {
-  const { data, isLoading, error } = useGet<Appointment[]>(
-    "/appointments/patient-appointments"
+  const { token } = useAuth();
+  const { data, isLoading, error, refetch } = useGet<Appointment[]>(
+    "/appointments/patient-appointments",
   );
+  const removeAppointment = async (id: number) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3000/appointments/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+const handleRemove = async (id: number) => {
+    const confirmed = window.confirm(
+      "Sei sicuro di voler eliminare questo appuntamento?"
+    );
+    
+    if (!confirmed) return;
+
+    try {
+      await removeAppointment(id);
+      alert("Appuntamento eliminato con successo!");
+      
+      if (refetch) {
+        await refetch();
+      }
+    } catch (error) {
+      alert("Errore durante l'eliminazione. Riprova.");
+      console.error(error);
+    }
+  };
 
   if (isLoading) {
     return <div className="min-h-screen p-4">Caricamento agenda...</div>;
@@ -20,11 +60,7 @@ const PatientAgenda = () => {
   }
 
   if (!data || data.length === 0) {
-    return (
-      <div className="min-h-screen p-4">
-        Nessuna visita trovata.
-      </div>
-    );
+    return <div className="min-h-screen p-4">Nessuna visita trovata.</div>;
   }
 
   return (
@@ -35,21 +71,27 @@ const PatientAgenda = () => {
         const { doctor, clinic, medicalReport } = appointment;
 
         return (
-          <div
-            key={appointment.id}
-            className="card bg-base-300 shadow"
-          >
+          <div key={appointment.id} className="card bg-base-300 shadow ">
             <div className="card-body space-y-2">
-              <h2 className="card-title">
-                Visita del {appointment.appointmentDate} alle {appointment.appointmentTime}
-              </h2>
+              <div className=" flex justify-between">
+                <h2 className="card-title">
+                  Visita del {appointment.appointmentDate.split("T")[0]} alle{" "}
+                  {appointment.appointmentTime}
+                </h2>
+                {appointment.status === "CONFERMATO" && (
+                  <Button onClick={()=>handleRemove(appointment.id)} classes="btn btn btn-outline btn-error w-1/8 ">Elimina</Button>
+                )}
+              </div>
+
               <p className="text-sm text-base-content/70">
-                Stato: {appointment.status} • Durata: {appointment.durationMinutes} min
+                Stato: {appointment.status} • Durata:{" "}
+                {appointment.durationMinutes} min
               </p>
               <p>
                 <span className="font-semibold">Motivo:</span>{" "}
                 {appointment.reason}
               </p>
+
               {appointment.notes && (
                 <p>
                   <span className="font-semibold">Note:</span>{" "}
@@ -64,9 +106,8 @@ const PatientAgenda = () => {
                 {doctor.firstName} {doctor.lastName}
               </p>
               <p>
-                <span className="font-semibold">Struttura:</span>{" "}
-                {clinic.name} – {clinic.address} {clinic.city}{" "}
-                {clinic.postalCode}
+                <span className="font-semibold">Struttura:</span> {clinic.name}{" "}
+                – {clinic.address} {clinic.city} {clinic.postalCode}
               </p>
 
               {medicalReport && (
