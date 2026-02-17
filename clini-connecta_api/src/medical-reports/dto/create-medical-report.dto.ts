@@ -10,7 +10,7 @@ export class CreateMedicalReportDto {
   })
   @IsEnum(ReportType)
   @IsNotEmpty()
-  reportType: ReportType;
+  reportType!: ReportType;
 
   @ApiProperty({
     description: 'Titolo del referto',
@@ -18,7 +18,7 @@ export class CreateMedicalReportDto {
   })
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @ApiProperty({
     description: 'Diagnosi del referto',
@@ -26,7 +26,7 @@ export class CreateMedicalReportDto {
   })
   @IsString()
   @IsNotEmpty()
-  diagnosis: string;
+  diagnosis!: string;
 
   @ApiPropertyOptional({
     description: 'Trattamento prescritto',

@@ -22,14 +22,14 @@ export class MedicalReportsService {
     private readonly appointmentRepository: Repository<Appointment>,
   ) {}
 
-  async getMedicalReports(userId:number){
-      const reports = await this.medicalReportRepository.find({
-      where: { appointment:{doctor:{user:{id:userId}}} },
+  async getMedicalReports(userId: number) {
+    const reports = await this.medicalReportRepository.find({
+      where: { appointment: { doctor: { user: { id: userId } } } },
     });
 
     return reports;
   }
-  
+
   async createMedicalReport(
     createMedicalReportDto: CreateMedicalReportDto,
     appointmentId: number,
@@ -59,15 +59,21 @@ export class MedicalReportsService {
     }
 
     const report = this.medicalReportRepository.create({
-      ...createMedicalReportDto,
-      appointmentId: appointmentId,
+      reportType: createMedicalReportDto.reportType,
+      title: createMedicalReportDto.title,
+      diagnosis: createMedicalReportDto.diagnosis,
+      treatment: createMedicalReportDto.treatment || null,
+      appointment: appointment,
     });
 
     const savedReport = await this.medicalReportRepository.save(report);
 
     appointment.status = AppointmentStatus.COMPLETATO;
 
-    await this.appointmentRepository.save(appointment);
+    await this.appointmentRepository.update(
+      { id: appointmentId },
+      { status: AppointmentStatus.COMPLETATO },
+    );
 
     return savedReport;
   }
@@ -82,7 +88,7 @@ export class MedicalReportsService {
     }
 
     if (report.appointment.doctor.user.id != userId) {
-  throw new ForbiddenException(
+      throw new ForbiddenException(
         "You are not authorized to update this report",
       );
     }

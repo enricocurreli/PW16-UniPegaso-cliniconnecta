@@ -3,6 +3,7 @@ import type { DoctorAvailabilityInterface } from "@/interfaces/availability";
 import type { Clinic } from "@/interfaces/clinic";
 import type { Doctor } from "@/interfaces/doctor";
 import { Link } from "react-router-dom";
+import DoctorAvailabilityForm from "./CreateAvailabilityForm";
 interface ClinicGroup {
   clinic: Clinic;
   slots: DoctorAvailabilityInterface[];
@@ -279,6 +280,7 @@ const DoctorProfile = () => {
             <span>Nessuna disponibilità configurata</span>
           </div>
         )}
+        <DoctorAvailabilityForm/>
       </div>
 
       {/* Stats rapide */}

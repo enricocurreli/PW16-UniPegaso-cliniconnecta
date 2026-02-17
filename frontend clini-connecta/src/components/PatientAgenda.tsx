@@ -1,25 +1,17 @@
 import { useGet } from "@/hooks/useGet";
 import type { Appointment } from "@/interfaces/appointment";
 import Prescriptions from "./Prescriptions";
-import axios from "axios";
-import { useAuth } from "@/context/AuthContext";
 import Button from "./Button";
+import api from "@/api/axiosConfig";
 
 const PatientAgenda = () => {
-  const { token } = useAuth();
   const { data, isLoading, error, refetch } = useGet<Appointment[]>(
     "/appointments/patient-appointments",
   );
   const removeAppointment = async (id: number) => {
     try {
-      const response = await axios.delete(
+      const response = await api.delete(
         `http://localhost:3000/appointments/${id}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return response.data;
     } catch (error) {

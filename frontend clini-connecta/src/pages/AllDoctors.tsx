@@ -3,8 +3,10 @@ import Modal from "@/components/Modal";
 import { useGet } from "@/hooks/useGet";
 import type { Doctor } from "@/interfaces/doctor";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const AllDoctors = () => {
+  const { user } = useAuth();
   const { data, isLoading, error } = useGet<Doctor[]>("/doctors");
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
 
@@ -66,18 +68,13 @@ const AllDoctors = () => {
         >
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h1 className="md:text-5xl">
-                Doc. {selectedDoctor.firstName}
-              </h1>
-              <h1 className="md:text-5xl">
-                {selectedDoctor.lastName}
-              </h1>
+              <h1 className="md:text-5xl">Doc. {selectedDoctor.firstName}</h1>
+              <h1 className="md:text-5xl">{selectedDoctor.lastName}</h1>
               <h4 className="md:text-2xl py-2">
-                {selectedDoctor.specialization?.name ?? "Nessuna specializzazione"}
+                {selectedDoctor.specialization?.name ??
+                  "Nessuna specializzazione"}
               </h4>
-              <h4 className="md:text-xl">
-                Email: {selectedDoctor.user.email}
-              </h4>
+              <h4 className="md:text-xl">Email: {selectedDoctor.user.email}</h4>
               <h4 className="md:text-xl py-2">
                 Telefono: {selectedDoctor.phone ?? "Non disponibile"}
               </h4>
@@ -90,12 +87,20 @@ const AllDoctors = () => {
             </div>
           </div>
           <div className="modal-action">
-            <Link
-              to={`/doctor-availability/${selectedDoctor.id}`}
-              className="btn btn-primary"
-            >
-              Vedi disponibilità
-            </Link>
+            {user && user.role == "PAZIENTE" ? (
+                <Link
+                  to={`/doctor-availability/${selectedDoctor.id}`}
+                  className="btn btn-primary"
+                >
+                  Vedi disponibilità
+                </Link>
+              ): !user ? (
+                <Link to={"/login"} className="btn btn-primary hover:bg-blue-600">
+                  Accedi
+                </Link>
+              ) : " "
+            
+            }
           </div>
         </Modal>
       )}

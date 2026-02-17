@@ -3,12 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMemo, useState } from "react";
 import type { Slot } from "@/interfaces/slot";
 import type { DoctorClinic } from "@/interfaces/clinic";
-import { useAuth } from "@/context/AuthContext";
+
 import axios from "axios";
+import api from "@/api/axiosConfig";
 
 const DoctorAvailability = () => {
   const { doctorId } = useParams();
-  const { token } = useAuth();
+  
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
@@ -45,15 +46,9 @@ const DoctorAvailability = () => {
 
   const createAppointment = async (appointmentData: object) => {
     try {
-      const response = await axios.post(
+      const response = await api.post(
         "http://localhost:3000/appointments/create",
         appointmentData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return response.data;
     } catch (error) {

@@ -1,5 +1,4 @@
 import api from "@/api/axiosConfig";
-import { useAuth } from "@/context/AuthContext";
 import type { Prescription } from "@/interfaces/prescriptions";
 import { useActionState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,7 +23,6 @@ const CreatePrescriptionModal = ({
   onSuccess,
 }: CreatePrescriptionModalProps) => {
   const initialState: FormState = {};
-  const { token } = useAuth();
   const queryClient = useQueryClient();
   const createPrescriptionAction = async (
     prevState: FormState,

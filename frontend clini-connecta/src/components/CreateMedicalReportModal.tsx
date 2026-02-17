@@ -1,7 +1,6 @@
 import api from "@/api/axiosConfig";
-import { useAuth } from "@/context/AuthContext";
 import type { MedicalReport } from "@/interfaces/medicalReport";
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 
 interface CreateMedicalReportModalProps {
   appointmentId: number;
@@ -23,8 +22,6 @@ const CreateMedicalReportModal = ({
   onSuccess,
 }: CreateMedicalReportModalProps) => {
   const initialState: FormState = {};
-  const { token } = useAuth();
-  const [reason, setReason] = useState<string>();
   const CreateMedicalReportAction = async (
     prevState: FormState,
     formData: FormData,
@@ -35,27 +32,20 @@ const CreateMedicalReportModal = ({
       const diagnosis = formData.get("diagnosis") as string;
       const treatment = formData.get("treatment") as string;
 
-      if (!reportType || !title || !diagnosis || !treatment) {
+      if (!reportType || !title || !diagnosis) {
         return {
           error: "Tutti i campi obbligatori devono essere compilati",
           success: false,
         };
       }
-
-      const uploadFormData = new FormData();
-      uploadFormData.append("reportType", reportType);
-      uploadFormData.append("title", title);
-      uploadFormData.append("diagnosis", diagnosis);
-      uploadFormData.append("treatment", treatment);
-
       const response = await api.post(
-        `http://localhost:3000/prescriptions/upload/${appointmentId}`,
-        uploadFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
+        `/medical-reports/create/${appointmentId}`,
+       {
+        reportType,
+        title,
+        diagnosis,
+        treatment,
+      }
       );
 
       if (onSuccess) {
@@ -149,9 +139,8 @@ const CreateMedicalReportModal = ({
               </span>
             </label>
             <select
+              name="reportType"
               className="select select-bordered w-full"
-              value={reason || ""}
-              onChange={(e) => setReason(e.target.value)}
               required
               disabled={isPending}
             >
@@ -181,25 +170,22 @@ const CreateMedicalReportModal = ({
           {/* diagnosis */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Frequenza *</span>
+              <span className="label-text">Diagnosi *</span>
             </label>
-            <input
-              type="text"
+            <textarea
               name="diagnosis"
               placeholder="Es: Paziente presenta parametri cardiovascolari nella norma..."
-              className="input input-bordered w-full"
+              className="textarea textarea-bordered w-full h-28"
               required
               disabled={isPending}
             />
-            <div className="form-control">
+            <div className="form-control mt-4.5">
               <label className="label">
-                <span className="label-text">Trattamento *</span>
+                <span className="label-text">Trattamento</span>
               </label>
-              <input
-                type="date"
+              <textarea
                 name="treatment"
-                className="input input-bordered w-full"
-                required
+                className="textarea textarea-bordered w-full h-28"
                 disabled={isPending}
                 placeholder="Es: Nessuna terapia farmacologica necessaria al momento..."
               />
