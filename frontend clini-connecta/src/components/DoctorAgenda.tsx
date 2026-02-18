@@ -121,7 +121,7 @@ const DoctorAgenda = () => {
                   {appt.reason} — {appt.status}
                 </p>
                 <p className="text-sm">
-                  {appt.appointmentDate.split("T")[0]} alle{" "}
+                  {new Date(appt.appointmentDate).toLocaleDateString("it-IT")} alle{" "}
                   {appt.appointmentTime} · {appt.durationMinutes} minuti
                 </p>
               </div>

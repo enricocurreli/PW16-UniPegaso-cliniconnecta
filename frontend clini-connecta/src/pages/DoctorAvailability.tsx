@@ -1,15 +1,13 @@
 import { useGet } from "@/hooks/useGet";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Slot } from "@/interfaces/slot";
 import type { DoctorClinic } from "@/interfaces/clinic";
-
 import axios from "axios";
 import api from "@/api/axiosConfig";
 
 const DoctorAvailability = () => {
   const { doctorId } = useParams();
-  
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
@@ -17,7 +15,23 @@ const DoctorAvailability = () => {
   const [notes, setNotes] = useState<string | null>(null);
   const [reason, setReason] = useState<string>();
   const navigate = useNavigate();
-  //  cliniche dove lavora il dottore
+
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  
+  useEffect(() => {
+    if (!successMessage && !errorMessage) return;
+
+    const timer = setTimeout(() => {
+      setSuccessMessage(null);
+      setErrorMessage(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [successMessage, errorMessage]);
+
+  //  Cliniche dove lavora il dottore
   const {
     data: doctorClinics,
     isLoading: loadingClinics,
@@ -47,7 +61,7 @@ const DoctorAvailability = () => {
   const createAppointment = async (appointmentData: object) => {
     try {
       const response = await api.post(
-        "http://localhost:3000/appointments/create",
+        "/appointments/create",
         appointmentData,
       );
       return response.data;
@@ -56,55 +70,56 @@ const DoctorAvailability = () => {
     }
   };
 
-const handleBooking = async (slot: { time: string; endTime: string }) => {
-  const confirmed = window.confirm(
-    `Confermi la prenotazione?\n\n` +
-      `Data: ${new Date(selectedDate).toLocaleDateString("it-IT")}\n` +
-      `Orario: ${slot.time} - ${slot.endTime}\n` +
-      `Clinica: ${clinics?.find((c) => c.id === selectedClinic)?.name}`,
-  );
+  const handleBooking = async (slot: { time: string; endTime: string }) => {
+    const confirmed = window.confirm(
+      `Confermi la prenotazione?\n\n` +
+        `Data: ${new Date(selectedDate).toLocaleDateString("it-IT")}\n` +
+        `Orario: ${slot.time} - ${slot.endTime}\n` +
+        `Clinica: ${clinics?.find((c) => c.id === selectedClinic)?.name}`,
+    );
 
-  if (!confirmed) return; 
+    if (!confirmed) return;
 
-  let doctor_ID = 0;
-  if (doctorId) {
-    doctor_ID = parseInt(doctorId);
-  }
-
-
-  const appointmentData = {
-    doctorId: doctor_ID,
-    clinicId: selectedClinic,
-    appointmentDate: selectedDate,
-    appointmentTime: slot.time,
-    notes: notes || '', 
-    reason: reason || '', 
-  };
-
-
-  try {
-    const result = await createAppointment(appointmentData);
-    console.log('Risultato:', result);
-    
-    alert('Appuntamento prenotato con successo!');
-    
-    navigate('/my-appointments', {
-      state: {
-        appointment: result,
-        message: 'Prenotazione completata con successo!',
-      },
-    });
-  } catch (error) {
-    console.error('Errore completo:', error);
-    if (axios.isAxiosError(error)) {
-      console.error('Response data:', error.response?.data);
-      console.error('Response status:', error.response?.status);
-      alert(`Errore: ${error.response?.data?.message || 'Errore nella prenotazione'}`);
-    } else {
-      alert('Errore nella prenotazione. Riprova.');
+    let doctor_ID = 0;
+    if (doctorId) {
+      doctor_ID = parseInt(doctorId);
     }
-  }
-};
+
+    const appointmentData = {
+      doctorId: doctor_ID,
+      clinicId: selectedClinic,
+      appointmentDate: selectedDate,
+      appointmentTime: slot.time,
+      notes: notes || "",
+      reason: reason || "",
+    };
+
+    try {
+      const result = await createAppointment(appointmentData);
+      console.log("Risultato:", result);
+
+      setSuccessMessage("Appuntamento prenotato con successo!");
+
+      
+      navigate("/my-appointments", {
+        state: {
+          appointment: result,
+          message: "Prenotazione completata con successo!",
+        },
+      });
+    } catch (error) {
+      console.error("Errore completo:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Response data:", error.response?.data);
+        console.error("Response status:", error.response?.status);
+        const msg =
+          error.response?.data?.message || "Errore nella prenotazione";
+        setErrorMessage(msg);
+      } else {
+        setErrorMessage("Errore nella prenotazione. Riprova.");
+      }
+    }
+  };
 
   // Loading iniziale
   if (loadingClinics) {
@@ -126,6 +141,33 @@ const handleBooking = async (slot: { time: string; endTime: string }) => {
 
   return (
     <div className="min-h-screen bg-base-100 p-4 md:p-10">
+      {/* Toast DaisyUI */}
+      <div className="toast toast-top toast-end z-50">
+        {successMessage && (
+          <div className="alert alert-success shadow-lg">
+            <span>{successMessage}</span>
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => setSuccessMessage(null)}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="alert alert-error shadow-lg">
+            <span>{errorMessage}</span>
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => setErrorMessage(null)}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <h1 className="text-3xl font-bold mb-2">Prenota Appuntamento</h1>

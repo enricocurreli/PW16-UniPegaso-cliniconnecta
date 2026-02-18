@@ -4,12 +4,39 @@ import type { Clinic } from "@/interfaces/clinic";
 import type { Doctor } from "@/interfaces/doctor";
 import { Link } from "react-router-dom";
 import DoctorAvailabilityForm from "./CreateAvailabilityForm";
+import api from "@/api/axiosConfig";
+import Button from "./Button";
+import { useEffect, useState } from "react";
+
 interface ClinicGroup {
   clinic: Clinic;
   slots: DoctorAvailabilityInterface[];
 }
+
 const DoctorProfile = () => {
-  const { data: doctor, isLoading, error } = useGet<Doctor>("/doctors/account");
+  const {
+    data: doctor,
+    isLoading,
+    error,
+    refetch,
+  } = useGet<Doctor>("/doctors/account");
+
+  // Toast state
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Auto-hide toast dopo 3 secondi
+  useEffect(() => {
+    if (!successMessage && !errorMessage) return;
+
+    const timer = setTimeout(() => {
+      setSuccessMessage(null);
+      setErrorMessage(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [successMessage, errorMessage]);
+
   if (isLoading) return <div>Loading...</div>;
   if (error)
     return (
@@ -29,9 +56,11 @@ const DoctorProfile = () => {
       </div>
     );
   }
+
   const availabilitiesArray = Array.isArray(doctor.availabilities)
     ? doctor.availabilities
     : [];
+
   const availabilitiesByClinic = availabilitiesArray.reduce<
     Record<number, ClinicGroup>
   >((acc, avail) => {
@@ -57,8 +86,48 @@ const DoctorProfile = () => {
     Domenica: 7,
   };
 
+  const removeAvailability = async (id: number) => {
+    try {
+      const response = await api.delete(`/doctor-availability/${id}`);
+  
+      refetch();
+      setSuccessMessage("Disponibilità eliminata con successo");
+      return response.data;
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage(
+        err?.response?.data?.message || "Errore durante l'eliminazione",
+      );
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+      <div className="toast toast-top toast-end z-50">
+        {successMessage && (
+          <div className="alert alert-success shadow-lg">
+            <span>{successMessage}</span>
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => setSuccessMessage(null)}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+        {errorMessage && (
+          <div className="alert alert-error shadow-lg">
+            <span>{errorMessage}</span>
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => setErrorMessage(null)}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Header con info principali */}
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
@@ -144,7 +213,13 @@ const DoctorProfile = () => {
                     alt="Avatar medico"
                   />
                   <span>
-                    <Link to="/complete-profile" className="px-2 hover:underline hover:underline-offset-5 hover:text-red-600"> Modifica </Link>
+                    <Link
+                      to="/complete-profile"
+                      className="px-2 hover:underline hover:underline-offset-5 hover:text-red-600"
+                    >
+                      {" "}
+                      Modifica{" "}
+                    </Link>
                   </span>
                 </div>
               </div>
@@ -161,7 +236,6 @@ const DoctorProfile = () => {
             </div>
           )}
         </div>
-        {/* <DoctorProfile></DoctorProfile> */}
       </div>
 
       {/* Disponibilità per clinica */}
@@ -199,8 +273,9 @@ const DoctorProfile = () => {
                       {item.clinic.name}
                     </div>
                     <span className="text-sm text-base-content/70">
-                      {item.clinic.address}
+                      {item.clinic.address} - {item.clinic.city}
                     </span>
+
                   </div>
 
                   {/* Griglia orari */}
@@ -246,7 +321,7 @@ const DoctorProfile = () => {
                           </span>
                         </div>
 
-                        <div className="text-xs text-base-content/60 mt-2">
+                        <div className="text-base-content/60 mt-2">
                           <span>
                             {new Date(slot.validFrom).toLocaleDateString(
                               "it-IT",
@@ -254,6 +329,14 @@ const DoctorProfile = () => {
                             -{" "}
                             {new Date(slot.validTo).toLocaleDateString("it-IT")}
                           </span>
+                        </div>
+                        <div className="mt-2">
+                          <Button
+                            classes="btn btn-outline btn-error btn-sm"
+                            onClick={() => removeAvailability(slot.id)}
+                          >
+                            Elimina
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -280,7 +363,7 @@ const DoctorProfile = () => {
             <span>Nessuna disponibilità configurata</span>
           </div>
         )}
-        <DoctorAvailabilityForm/>
+        <DoctorAvailabilityForm />
       </div>
 
       {/* Stats rapide */}

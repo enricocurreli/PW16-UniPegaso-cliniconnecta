@@ -2,11 +2,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import Button from "./Button";
+import { CgMenuMotion } from "react-icons/cg";
+import { useTheme } from "@/hooks/useTheme";
 
 export function Navbar() {
   const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
-
+const {theme} = useTheme()
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -79,65 +81,60 @@ export function Navbar() {
       </div>
 
       {/* MOBILE */}
-      <div className="drawer">
+      <div className="drawer md:hidden">
         <input id="my-drawer-1" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content py-2 shadow-md w- flex justify-between md:hidden">
+        <div className="drawer-content py-2 shadow-md w- flex justify-between ">
           {/* Page content here */}
           <label
             htmlFor="my-drawer-1"
             className="btn drawer-button bg-transparent border-0 shadow-none"
           >
-            <div className="bg-primary text-neutral-content p-2 rounded-full">
-              <span className="text-xl">D</span>
-              <span className="text-xl">D</span>
+            <div className=" text-neutral-content p-2 rounded-full">
+              <CgMenuMotion color={theme==="dark" ? "#60a5fa": "#3b82f6"} size={"30"}/>
             </div>
           </label>
           <Link to="/" className="btn btn-ghost text-xl text-primary">
             CliniConnecta
           </Link>
         </div>
-        <div className="drawer-side">
+        <div className="drawer-side z-50 ">
           <label
             htmlFor="my-drawer-1"
             aria-label="close sidebar"
             className="drawer-overlay"
           ></label>
-          {isAuthenticated && (
-            <ul className="menu bg-base-200 min-h-full w-50 p-4">
-              {/* Sidebar content here */}
 
-              <li>
-                <Link className="md:text-xl" to="/profile">
-                  Profilo
-                </Link>
-              </li>
-              {user?.role === "ADMIN" && (
+          <ul className="menu bg-base-200 min-h-full w-50 p-4">
+            {/* Sidebar content here */}
+            {isAuthenticated && (
+              <>
                 <li>
-                  <Link className="md:text-xl" to="/">
-                    Dashboard
+                  <Link className="md:text-xl" to="/profile">
+                    Profilo
                   </Link>
                 </li>
-              )}
-              <li>
-                <Link className="md:text-xl" to="/appointments">
-                  Appuntamenti
-                </Link>
-              </li>
-              <li>
-                <Button onClick={handleLogout} classes="md:text-xl">
-                  Logout
-                </Button>
-              </li>
-              <li>
-                <Link to="/doctors" className="md:text-xl">
-                  Dottori
-                </Link>
-              </li>
-              <li className="w-20">
-                <ThemeToggle />
-              </li>
-            </ul>
-          )}
+                <li>
+                  <Link className="md:text-xl" to="/appointments">
+                    Appuntamenti
+                  </Link>
+                </li>
+                <li>
+                  <Button onClick={handleLogout} classes="md:text-xl">
+                    Logout
+                  </Button>
+                </li>
+              </>
+            )}
+
+            <li>
+              <Link to="/doctors" className="md:text-xl">
+                Dottori
+              </Link>
+            </li>
+            <li className="w-20">
+              <ThemeToggle />
+            </li>
+          </ul>
         </div>
       </div>
     </>

@@ -7,7 +7,7 @@ const Prescriptions = ({ id }: PrescriptionProps) => {
   const { data, isLoading, error } = useGet<Prescription[]>(
     `/prescriptions/${id}`,
   );
-const API_BASE_URL = "http://localhost:3000";
+  const API_BASE_URL = "http://localhost:3000";
 
   if (isLoading) {
     return <div>Caricamento prescrizioni...</div>;
@@ -22,11 +22,12 @@ const API_BASE_URL = "http://localhost:3000";
   }
 
   return (
-     <div className="space-y-4">
+    <div className="space-y-4">
       {data.map((prescription) => {
         const downloadUrl = prescription.filePath
-          ? `${API_BASE_URL}${prescription.filePath}`
+          ? `${API_BASE_URL}/${prescription.filePath}`
           : null;
+      
 
         return (
           <div

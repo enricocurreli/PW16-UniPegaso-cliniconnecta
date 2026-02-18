@@ -67,7 +67,8 @@ const handleRemove = async (id: number) => {
             <div className="card-body space-y-2">
               <div className=" flex justify-between">
                 <h2 className="card-title">
-                  Visita del {appointment.appointmentDate.split("T")[0]} alle{" "}
+                  
+                  Visita del {new Date(appointment.appointmentDate).toLocaleDateString("it-IT")} alle{" "}
                   {appointment.appointmentTime}
                 </h2>
                 {appointment.status === "CONFERMATO" && (
