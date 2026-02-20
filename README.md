@@ -6,7 +6,7 @@
 
 ##  Descrizione
 
-CliniConnecta è un sistema completo di gestione sanitaria sviluppato con NestJS e TypeORM. Permette la gestione di appuntamenti medici, pazienti, medici, cliniche, report medici e prescrizioni con supporto per file PDF.
+CliniConnecta è un sistema full-stack di gestione sanitaria con backend NestJS e frontend React. Permette la gestione di appuntamenti medici, pazienti, medici, cliniche, report medici e prescrizioni con supporto per file PDF.
 
 ##  Caratteristiche Principali
 
@@ -173,6 +173,18 @@ clini-connecta_api/
 ├── tsconfig.json
 └── README.md
 ```
+```
+
+── frontend-clini-connecta/     # Frontend Vite/React
+    ├── src/
+    │   ├── components/ui/       # daisy-ui
+    │   ├── hooks/               # Queries/Auth
+    │   ├── pages/               # Login/Dashboard
+    │   └── lib/api.ts           # Axios + JWT
+    ├── tailwind.config.js
+    └── package.json
+
+```
 
 ## 🛠️ Comandi Disponibili
 
@@ -243,6 +255,20 @@ Il sistema utilizza JWT (JSON Web Tokens) per l'autenticazione:
 - `pdfkit` - Generazione PDF
 - `class-validator` - Validazione DTO
 - `class-transformer` - Trasformazione oggetti
+
+### Avvio Full-Stack
+
+```bash
+cd clini-connecta_api
+npm run start:dev  # http://localhost:3000
+```
+
+```bash
+cd frontend-clini-connecta
+npm run dev  # http://localhost:5173
+```
+
+
 
 ### Sviluppo
 
